@@ -2,10 +2,10 @@
   "name": "transactions",
   "version": "0.0.1",
   "scripts": {
-    "build": "NODE_ENV=production rspack build",
-    "build:dev": "NODE_ENV=development rspack build",
+    "build": "cross-env NODE_ENV=production rspack build",
+    "build:dev": "cross-env NODE_ENV=development rspack build",
     "build:start": "cd dist && rspack serve",
-    "start": "set NODE_ENV=development&& rspack serve"
+    "start": "cross-env NODE_ENV=development rspack serve"
   },
   "devDependencies": {
     "@rspack/cli": "~1.2.0",
@@ -14,6 +14,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "autoprefixer": "^10.1.0",
+    "cross-env": "^10.1.0",
     "css-loader": "^7.1.2",
     "postcss": "^8.2.1",
     "postcss-loader": "^8.0.0",
