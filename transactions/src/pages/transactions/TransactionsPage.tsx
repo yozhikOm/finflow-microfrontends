@@ -1,6 +1,4 @@
-import React from "react";
-
-export const Transactions = () => {
+export const TransactionsPage = () => {
   return (
     <section>
       <h1>Transactions</h1>

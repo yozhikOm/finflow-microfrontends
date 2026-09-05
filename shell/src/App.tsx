@@ -1,16 +1,16 @@
-import ReactDOM from "react-dom/client";
-import { Transactions } from "transactions/Transactions";
+import ReactDOM from 'react-dom/client';
+import { TransactionsPage } from 'transactions/TransactionsPage';
 
-import "./index.css";
+import './index.css';
 
 const App = () => (
-  <div className="container">
+  <div className='container'>
     <div>Name: shell</div>
     <div>Framework: react-19</div>
-    <Transactions/>
+    <TransactionsPage />
   </div>
 );
 
-const root = ReactDOM.createRoot(document.getElementById("app") as HTMLElement);
+const root = ReactDOM.createRoot(document.getElementById('app') as HTMLElement);
 
 root.render(<App />);

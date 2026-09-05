@@ -1,3 +1,3 @@
 
-    export type RemoteKeys = 'transactions/Transactions';
-    type PackageType<T> = T extends 'transactions/Transactions' ? typeof import('transactions/Transactions') :any;
+    export type RemoteKeys = 'transactions/TransactionsPage';
+    type PackageType<T> = T extends 'transactions/TransactionsPage' ? typeof import('transactions/TransactionsPage') :any;
