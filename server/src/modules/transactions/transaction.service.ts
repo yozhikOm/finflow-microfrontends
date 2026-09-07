@@ -54,6 +54,10 @@ export const transactionService = {
     return transactionRepository.findAll();
   },
 
+  async getById(id: string) {
+    return transactionRepository.findById(id);
+  },
+
   create(input: CreateTransactionInput) {
     validateTransaction(input);
 
@@ -66,5 +70,9 @@ export const transactionService = {
       ...input,
       date,
     });
+  },
+
+  async delete(id: string) {
+    return transactionRepository.delete(id);
   },
 };

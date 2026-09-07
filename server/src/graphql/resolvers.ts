@@ -21,6 +21,9 @@ export const resolvers = {
     transactions: () => {
       return transactionService.getAll();
     },
+    transaction: (_: unknown, { id }: { id: string }) => {
+      return transactionService.getById(id);
+    },
   },
 
   Mutation: {
@@ -29,6 +32,9 @@ export const resolvers = {
       { input }: { input: Parameters<typeof transactionService.create>[0] }
     ) => {
       return transactionService.create(input);
+    },
+    deleteTransaction: (_: unknown, { id }: { id: string }) => {
+      return transactionService.delete(id);
     },
   },
 };

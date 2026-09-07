@@ -30,7 +30,8 @@ export const typeDefs = `#graphql
   }
 
   type Query {
-    transactions: [Transaction!]!
+    transactions: [Transaction!]!,
+    transaction(id: ID!): Transaction
   }
 
   input CreateTransactionInput {
@@ -52,5 +53,6 @@ export const typeDefs = `#graphql
     createTransaction(
       input: CreateTransactionInput!
     ): Transaction!
+    deleteTransaction(id: ID!): Boolean!
   }
 `;
