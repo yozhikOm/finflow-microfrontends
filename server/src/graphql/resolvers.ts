@@ -1,3 +1,5 @@
+import { TransactionModel } from '../models/transaction.model.js';
+
 type Transaction = {
   id: string;
   type: 'INCOME' | 'EXPENSE' | 'TRANSFER';
@@ -14,28 +16,19 @@ type Transaction = {
   updatedAt: string;
 };
 
-const transactions: Transaction[] = [];
-
 export const resolvers = {
   Query: {
-    transactions: () => transactions,
+    transactions: async () => {
+      return TransactionModel.find().sort({ date: -1 });
+    },
   },
 
   Mutation: {
-    createTransaction: (
-      _: unknown,
-      { input }: { input: Omit<Transaction, 'id' | 'createdAt' | 'updatedAt'> }
-    ): Transaction => {
-      const now = new Date().toISOString();
-
-      const transaction: Transaction = {
-        id: crypto.randomUUID(),
+    createTransaction: async (_: unknown, { input }: { input: any }) => {
+      const transaction = await TransactionModel.create({
         ...input,
-        createdAt: now,
-        updatedAt: now,
-      };
-
-      transactions.push(transaction);
+        date: new Date(input.date),
+      });
 
       return transaction;
     },
