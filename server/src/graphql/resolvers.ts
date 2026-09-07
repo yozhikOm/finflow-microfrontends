@@ -1,4 +1,4 @@
-import { TransactionModel } from '../models/transaction.model.js';
+import { transactionService } from '../modules/transactions/transaction.service.js';
 
 type Transaction = {
   id: string;
@@ -18,19 +18,17 @@ type Transaction = {
 
 export const resolvers = {
   Query: {
-    transactions: async () => {
-      return TransactionModel.find().sort({ date: -1 });
+    transactions: () => {
+      return transactionService.getAll();
     },
   },
 
   Mutation: {
-    createTransaction: async (_: unknown, { input }: { input: any }) => {
-      const transaction = await TransactionModel.create({
-        ...input,
-        date: new Date(input.date),
-      });
-
-      return transaction;
+    createTransaction: async (
+      _: unknown,
+      { input }: { input: Parameters<typeof transactionService.create>[0] }
+    ) => {
+      return transactionService.create(input);
     },
   },
 };
