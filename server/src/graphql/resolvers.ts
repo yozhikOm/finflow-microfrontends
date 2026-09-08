@@ -1,20 +1,5 @@
 import { transactionService } from '../modules/transactions/transaction.service.js';
-
-type Transaction = {
-  id: string;
-  type: 'INCOME' | 'EXPENSE' | 'TRANSFER';
-  amount: {
-    amount: number;
-    currency: 'RUB' | 'USD' | 'EUR';
-  };
-  accountId: string;
-  targetAccountId?: string;
-  categoryId?: string;
-  date: string;
-  description?: string;
-  createdAt: string;
-  updatedAt: string;
-};
+import { CreateTransactionInput, UpdateTransactionInput } from '../modules/transactions/transaction.types.js';
 
 export const resolvers = {
   Query: {
@@ -29,9 +14,21 @@ export const resolvers = {
   Mutation: {
     createTransaction: async (
       _: unknown,
-      { input }: { input: Parameters<typeof transactionService.create>[0] }
+      { input }: { input: CreateTransactionInput }
     ) => {
       return transactionService.create(input);
+    },
+    updateTransaction: (
+      _: unknown,
+      {
+        id,
+        input,
+      }: {
+        id: string;
+        input: UpdateTransactionInput;
+      }
+    ) => {
+      return transactionService.update(id, input);
     },
     deleteTransaction: (_: unknown, { id }: { id: string }) => {
       return transactionService.delete(id);

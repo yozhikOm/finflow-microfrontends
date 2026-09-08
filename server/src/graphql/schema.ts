@@ -44,6 +44,16 @@ export const typeDefs = `#graphql
     description: String
   }
 
+  input UpdateTransactionInput {
+    type: TransactionType
+    amount: MoneyInput
+    accountId: ID
+    targetAccountId: ID
+    categoryId: ID
+    date: String
+    description: String
+  }
+
   input MoneyInput {
     amount: Int!
     currency: Currency!
@@ -52,6 +62,10 @@ export const typeDefs = `#graphql
   type Mutation {
     createTransaction(
       input: CreateTransactionInput!
+    ): Transaction!
+    updateTransaction(
+      id: ID!
+      input: UpdateTransactionInput!
     ): Transaction!
     deleteTransaction(id: ID!): Boolean!
   }

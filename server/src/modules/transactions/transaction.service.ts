@@ -1,21 +1,11 @@
 import { transactionRepository } from './transaction.repository.js';
+import {
+  CreateTransactionInput,
+  TransactionData,
+  UpdateTransactionInput,
+} from './transaction.types.js';
 
-type TransactionType = 'INCOME' | 'EXPENSE' | 'TRANSFER';
-
-interface CreateTransactionInput {
-  type: TransactionType;
-  amount: {
-    amount: number;
-    currency: 'RUB' | 'USD' | 'EUR';
-  };
-  accountId: string;
-  targetAccountId?: string;
-  categoryId?: string;
-  date: string;
-  description?: string;
-}
-
-const validateTransaction = (input: CreateTransactionInput) => {
+const validateTransaction = (input: TransactionData) => {
   if (input.amount.amount <= 0) {
     throw new Error('Transaction amount must be greater than zero');
   }
@@ -72,6 +62,32 @@ export const transactionService = {
     });
   },
 
+  async update(id: string, input: UpdateTransactionInput) {
+    const existingTransaction = await transactionRepository.findById(id);
+
+    if (!existingTransaction) {
+      throw new Error('Transaction not found');
+    }
+
+    const updatedTransaction: TransactionData = {
+      type: input.type ?? existingTransaction.type,
+      amount: input.amount ?? existingTransaction.amount,
+      accountId: input.accountId ?? existingTransaction.accountId,
+      targetAccountId:
+        input.targetAccountId ??
+        existingTransaction.targetAccountId ??
+        undefined,
+      categoryId:
+        input.categoryId ?? existingTransaction.categoryId ?? undefined,
+      date: input.date ? new Date(input.date) : existingTransaction.date,
+      description:
+        input.description ?? existingTransaction.description ?? undefined,
+    };
+
+    validateTransaction(updatedTransaction);
+
+    return transactionRepository.update(id, updatedTransaction);
+  },
   async delete(id: string) {
     return transactionRepository.delete(id);
   },

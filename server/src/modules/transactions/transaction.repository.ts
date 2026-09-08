@@ -1,5 +1,6 @@
 import { TransactionModel } from './transaction.model.js';
 
+
 export const transactionRepository = {
   async findAll() {
     return TransactionModel.find().sort({ date: -1 });
@@ -11,6 +12,16 @@ export const transactionRepository = {
 
   create(data: Parameters<typeof TransactionModel.create>[0]) {
     return TransactionModel.create(data);
+  },
+
+  async update(
+    id: string,
+    data: Parameters<typeof TransactionModel.findByIdAndUpdate>[1]
+  ) {
+    return TransactionModel.findByIdAndUpdate(id, data, {
+      new: true,
+      runValidators: true,
+    }).exec();
   },
 
   async delete(id: string) {
