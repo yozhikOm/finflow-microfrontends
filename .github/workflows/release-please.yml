@@ -1,0 +1,20 @@
+name: Release Please
+
+on:
+  push:
+    branches: [master]
+
+# Права на запись нужны только этому workflow: создать release-PR,
+# повесить на него метки и после мержа создать тег и GitHub Release.
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      # Версии и пакеты описаны в release-please-config.json,
+      # текущие версии хранятся в .release-please-manifest.json.
+      - uses: googleapis/release-please-action@v5
