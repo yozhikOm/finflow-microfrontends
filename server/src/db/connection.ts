@@ -11,3 +11,7 @@ export const connectToDatabase = async () => {
 
   console.log('MongoDB connected');
 };
+
+export const disconnectFromDatabase = async () => {
+  await mongoose.disconnect();
+};
