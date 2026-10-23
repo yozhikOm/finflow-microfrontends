@@ -27,7 +27,7 @@ export const resolvers = {
   Mutation: {
     createTransaction: async (
       _: unknown,
-      { input }: { input: CreateTransactionInput }
+      { input }: { input: CreateTransactionInput },
     ) => {
       return transactionService.create(input);
     },
@@ -39,7 +39,7 @@ export const resolvers = {
       }: {
         id: string;
         input: UpdateTransactionInput;
-      }
+      },
     ) => {
       return transactionService.update(id, input);
     },

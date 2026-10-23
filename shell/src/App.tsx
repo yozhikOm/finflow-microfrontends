@@ -4,7 +4,7 @@ import { TransactionsPage } from 'transactions/TransactionsPage';
 import './index.css';
 
 const App = () => (
-  <div className='container'>
+  <div className="container">
     <div>Name: shell</div>
     <div>Framework: react-19</div>
     <TransactionsPage />

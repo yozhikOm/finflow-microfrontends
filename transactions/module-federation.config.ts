@@ -1,7 +1,7 @@
 export const mfConfig = {
-  name: "transactions",
+  name: 'transactions',
   exposes: {
-    "./TransactionsPage": "./src/pages/transactions/TransactionsPage.tsx",
+    './TransactionsPage': './src/pages/transactions/TransactionsPage.tsx',
   },
-  shared: ["react", "react-dom"],
+  shared: ['react', 'react-dom'],
 };

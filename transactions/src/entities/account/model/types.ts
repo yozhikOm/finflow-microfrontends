@@ -1,13 +1,6 @@
-type AccountType = 
-| "cash"
-| "bank"
-| "creditCard"
-| "savings";
+type AccountType = 'cash' | 'bank' | 'creditCard' | 'savings';
 
-type Currency =
-  | "RUB"
-  | "USD"
-  | "EUR";
+type Currency = 'RUB' | 'USD' | 'EUR';
 
 interface Money {
   amount: number;

@@ -16,7 +16,7 @@ const moneySchema = new Schema(
   },
   {
     _id: false,
-  }
+  },
 );
 
 const transactionSchema = new Schema<Transaction>(
@@ -56,7 +56,7 @@ const transactionSchema = new Schema<Transaction>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 export const TransactionModel = model('Transaction', transactionSchema);
