@@ -1,6 +1,6 @@
 type CategoryType = 'income' | 'expense';
 
-interface Category {
+export interface Category {
   id: string;
   name: string;
   type: CategoryType;
