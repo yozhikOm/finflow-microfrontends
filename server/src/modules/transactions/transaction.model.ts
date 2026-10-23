@@ -1,5 +1,7 @@
 import { Schema, model } from 'mongoose';
 
+import type { Transaction } from './transaction.types.js';
+
 const moneySchema = new Schema(
   {
     amount: {
@@ -17,7 +19,7 @@ const moneySchema = new Schema(
   }
 );
 
-const transactionSchema = new Schema(
+const transactionSchema = new Schema<Transaction>(
   {
     type: {
       type: String,

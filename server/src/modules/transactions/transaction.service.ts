@@ -2,10 +2,11 @@ import { transactionRepository } from './transaction.repository.js';
 import {
   CreateTransactionInput,
   TransactionData,
+  TransactionFields,
   UpdateTransactionInput,
 } from './transaction.types.js';
 
-const validateTransaction = (input: TransactionData) => {
+const validateTransaction = (input: TransactionFields) => {
   if (input.amount.amount <= 0) {
     throw new Error('Transaction amount must be greater than zero');
   }
@@ -39,6 +40,16 @@ const validateTransaction = (input: TransactionData) => {
   }
 };
 
+const parseTransactionDate = (value: string): Date => {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    throw new Error('Invalid transaction date');
+  }
+
+  return date;
+};
+
 export const transactionService = {
   getAll() {
     return transactionRepository.findAll();
@@ -51,14 +62,9 @@ export const transactionService = {
   create(input: CreateTransactionInput) {
     validateTransaction(input);
 
-    const date = new Date(input.date);
-
-    if (Number.isNaN(date.getTime())) {
-      throw new Error('Invalid transaction date');
-    }
     return transactionRepository.create({
       ...input,
-      date,
+      date: parseTransactionDate(input.date),
     });
   },
 
@@ -74,14 +80,12 @@ export const transactionService = {
       amount: input.amount ?? existingTransaction.amount,
       accountId: input.accountId ?? existingTransaction.accountId,
       targetAccountId:
-        input.targetAccountId ??
-        existingTransaction.targetAccountId ??
-        undefined,
-      categoryId:
-        input.categoryId ?? existingTransaction.categoryId ?? undefined,
-      date: input.date ? new Date(input.date) : existingTransaction.date,
-      description:
-        input.description ?? existingTransaction.description ?? undefined,
+        input.targetAccountId ?? existingTransaction.targetAccountId,
+      categoryId: input.categoryId ?? existingTransaction.categoryId,
+      date: input.date
+        ? parseTransactionDate(input.date)
+        : existingTransaction.date,
+      description: input.description ?? existingTransaction.description,
     };
 
     validateTransaction(updatedTransaction);

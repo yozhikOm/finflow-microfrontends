@@ -1,5 +1,6 @@
 import { TransactionModel } from './transaction.model.js';
 
+import type { TransactionData } from './transaction.types.js';
 
 export const transactionRepository = {
   async findAll() {
@@ -10,14 +11,11 @@ export const transactionRepository = {
     return TransactionModel.findById(id).exec();
   },
 
-  create(data: Parameters<typeof TransactionModel.create>[0]) {
+  create(data: TransactionData) {
     return TransactionModel.create(data);
   },
 
-  async update(
-    id: string,
-    data: Parameters<typeof TransactionModel.findByIdAndUpdate>[1]
-  ) {
+  async update(id: string, data: TransactionData) {
     return TransactionModel.findByIdAndUpdate(id, data, {
       new: true,
       runValidators: true,

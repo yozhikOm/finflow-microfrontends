@@ -1,54 +1,41 @@
-type TransactionType = 'INCOME' | 'EXPENSE' | 'TRANSFER';
+export type TransactionType = 'INCOME' | 'EXPENSE' | 'TRANSFER';
 
-type Currency = 'RUB' | 'USD' | 'EUR';
+export type Currency = 'RUB' | 'USD' | 'EUR';
 
-interface Money {
+export interface Money {
   amount: number;
   currency: Currency;
 }
 
-// Доменная модель
-export interface Transaction {
-  id: string;
+// Единственный источник правды для полей, которые есть и в доменной модели,
+// и во входных данных (кроме date — у неё разное представление на разных
+// границах, см. ниже).
+export interface TransactionFields {
   type: TransactionType;
   amount: Money;
   accountId: string;
   targetAccountId?: string;
   categoryId?: string;
-  date: Date;
   description?: string;
+}
+
+// Доменная модель — то, что хранится и возвращается наружу
+export interface Transaction extends TransactionFields {
+  id: string;
+  date: Date;
   createdAt: Date;
   updatedAt: Date;
 }
 
-// Типы входных данных
-export interface CreateTransactionInput {
-  type: TransactionType;
-  amount: Money;
-  accountId: string;
-  targetAccountId?: string;
-  categoryId?: string;
+// Данные для записи в репозиторий: без служебных id/createdAt/updatedAt,
+// но date уже приведена к Date (граница между GraphQL-слоем и доменом)
+export type TransactionData = TransactionFields & { date: Date };
+
+// Вход мутации createTransaction: те же поля, но date — ещё строка,
+// как её присылает GraphQL-клиент
+export interface CreateTransactionInput extends TransactionFields {
   date: string;
-  description?: string;
 }
 
-export interface UpdateTransactionInput {
-  type?: TransactionType;
-  amount?: Money;
-  accountId?: string;
-  targetAccountId?: string;
-  categoryId?: string;
-  date?: string;
-  description?: string;
-}
-
-export interface TransactionData {
-  type: TransactionType;
-  amount: Money;
-  accountId: string;
-  targetAccountId?: string;
-  categoryId?: string;
-  date: string | Date;
-  description?: string;
-}
-
+// Вход мутации updateTransaction: то же самое, но partial-обновление
+export type UpdateTransactionInput = Partial<CreateTransactionInput>;
