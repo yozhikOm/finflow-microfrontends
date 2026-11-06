@@ -1,6 +1,6 @@
 {
   "name": "transactions",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "scripts": {
     "build": "cross-env NODE_ENV=production rspack build",
     "build:dev": "cross-env NODE_ENV=development rspack build",
