@@ -8,11 +8,21 @@ release-please reads these messages to version each app and write its `CHANGELOG
 - `!` after the type or a `BREAKING CHANGE:` footer → major bump (minor while an app is below 1.0).
 - `refactor`, `test`, `docs`, `style`, `build`, `ci`, `chore` → no release.
 
-Scope is the app: `server`, `shell` or `transactions`. Root-level changes (CI, tooling, docs) take no scope.
+Scope is the app or package: `server`, `shell`, `transactions`, `accounts`, `analytics`, `ui`, `events`, `routes` or `remote`. Root-level changes (CI, tooling, docs) take no scope.
 
 release-please assigns a commit to an app by the paths it touches, not by its scope. Keep each commit within one app so it lands in the right changelog.
 
 Versions in `package.json`, `.release-please-manifest.json` and every `CHANGELOG.md` belong to release-please: they change when the release PR merges.
+
+## Branches
+
+The flow is in ADR-0012:
+
+- Nobody commits to `master` directly. Branch off `develop`, open a PR into `develop`, merge it by squash. The PR title becomes the commit, so it must be a Conventional Commit too: CI lints it.
+- `develop` goes into `master` by a PR merged with a merge commit only. A squash would hide the commit types and paths release-please reads.
+- An urgent fix, or a revert after a rollback, goes from `hotfix/*` off `master` straight into `master`.
+- Every app and package gets its own release PR. Merge them one at a time, producer first.
+- After each push to `master` a workflow merges `master` into `develop`. On a conflict it opens a PR from `master` into `develop`: resolve it locally by merging `master` into `develop` and pushing. Never merge that PR with the button, since squash breaks the link between the branches.
 
 ## Checks
 
