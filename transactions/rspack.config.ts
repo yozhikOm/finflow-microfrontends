@@ -23,6 +23,8 @@ export default defineConfig({
   devServer: {
     port: 3001,
     historyApiFallback: true,
+    // Хост загружает mf-manifest.json через fetch с другого origin.
+    headers: { 'Access-Control-Allow-Origin': '*' },
     watchFiles: [path.resolve(__dirname, 'src')],
   },
   output: {
