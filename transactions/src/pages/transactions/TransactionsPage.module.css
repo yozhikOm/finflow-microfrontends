@@ -1,0 +1,10 @@
+.page {
+  padding: 16px 24px;
+  border-left: 4px solid #2f6fdf;
+  background: #eef3fc;
+}
+
+.title {
+  margin: 0 0 8px;
+  color: #2f6fdf;
+}
