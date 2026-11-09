@@ -3,5 +3,11 @@ export const mfConfig = {
   exposes: {
     './TransactionsPage': './src/pages/transactions/TransactionsPage.tsx',
   },
-  shared: ['react', 'react-dom'],
+  // Ключ с завершающим `/` шарит подпути: `react/jsx-runtime`, `react-dom/client`.
+  shared: {
+    react: { singleton: true },
+    'react/': { singleton: true },
+    'react-dom': { singleton: true },
+    'react-dom/': { singleton: true },
+  },
 };

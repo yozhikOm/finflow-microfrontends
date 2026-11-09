@@ -28,8 +28,8 @@ export default defineConfig({
   output: {
     // You need to set a unique value that is not equal to other applications
     uniqueName: 'transactions',
-    // publicPath must be configured if using manifest
-    publicPath: 'http://localhost:3001/',
+    // Адрес чанков берётся из адреса, по которому загрузили remoteEntry (ADR-0009).
+    publicPath: 'auto',
   },
 
   experiments: {
