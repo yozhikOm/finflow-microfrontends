@@ -85,6 +85,11 @@ jobs:
     services:
       mongo:
         image: mongo:8
+        # MongoDB 8 не стартует на ядре Linux 6.19+ у раннера (SERVER-121912):
+        # вшитый TCMalloc конфликтует с rseq. Переменная возвращает rseq glibc,
+        # и сервер запускается. Убрать, когда выйдет исправленный MongoDB.
+        env:
+          GLIBC_TUNABLES: glibc.pthread.rseq=1
         ports:
           - 27017:27017
         options: >-
