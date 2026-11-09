@@ -24,9 +24,9 @@
     "typescript": "^5.7.3"
   },
   "dependencies": {
-    "@module-federation/enhanced": "^0.8.9",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "@module-federation/enhanced": "^2.9.3",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
   },
   "private": true
 }

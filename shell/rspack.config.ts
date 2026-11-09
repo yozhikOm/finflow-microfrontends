@@ -28,8 +28,8 @@ export default defineConfig({
   output: {
     // You need to set a unique value that is not equal to other applications
     uniqueName: 'shell',
-    // publicPath must be configured if using manifest
-    publicPath: 'http://localhost:3000/',
+    // Адрес чанков берётся из адреса, по которому загрузили скрипт (ADR-0009).
+    publicPath: 'auto',
   },
 
   experiments: {
