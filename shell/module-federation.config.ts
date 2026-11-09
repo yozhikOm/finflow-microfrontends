@@ -1,8 +1,7 @@
 // Адрес remote-приложения задаётся при сборке, по умолчанию локальный (ADR-0009).
-const transactionsUrl = (process.env.FINFLOW_TRANSACTIONS_URL || 'http://localhost:3001').replace(
-  /\/+$/,
-  '',
-);
+const transactionsUrl = (
+  process.env.FINFLOW_TRANSACTIONS_URL || 'http://localhost:3001'
+).replace(/\/+$/, '');
 
 export const mfConfig = {
   name: 'shell',

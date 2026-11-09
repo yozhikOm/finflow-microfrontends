@@ -1,10 +1,10 @@
 import * as path from 'node:path';
 import { defineConfig } from '@rspack/cli';
 import { rspack } from '@rspack/core';
-import * as RefreshPlugin from '@rspack/plugin-react-refresh';
+import { ReactRefreshRspackPlugin } from '@rspack/plugin-react-refresh';
 import { ModuleFederationPlugin } from '@module-federation/enhanced/rspack';
 
-import { mfConfig } from './module-federation.config';
+import { mfConfig } from './module-federation.config.ts';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -12,7 +12,7 @@ const isDev = process.env.NODE_ENV === 'development';
 const targets = ['chrome >= 87', 'edge >= 88', 'firefox >= 78', 'safari >= 14'];
 
 export default defineConfig({
-  context: __dirname,
+  context: import.meta.dirname,
   entry: {
     main: './src/index.ts',
   },
@@ -23,29 +23,36 @@ export default defineConfig({
   devServer: {
     port: 3000,
     historyApiFallback: true,
-    watchFiles: [path.resolve(__dirname, 'src')],
+    watchFiles: [path.resolve(import.meta.dirname, 'src')],
   },
   output: {
+    // Явный путь нужен dts-plugin: без него Rspack 2 отдаёт плагину путь вывода
+    // слишком поздно, и файлы типов попадают в dist/dist вместо dist.
+    path: path.resolve(import.meta.dirname, 'dist'),
     // You need to set a unique value that is not equal to other applications
     uniqueName: 'shell',
     // Адрес чанков берётся из адреса, по которому загрузили скрипт (ADR-0009).
     publicPath: 'auto',
-  },
-
-  experiments: {
-    css: true,
+    clean: true,
   },
 
   module: {
+    generator: {
+      // Имя приложения в классе не даёт CSS-модулям разных приложений
+      // пересечься на одной странице.
+      'css/auto': {
+        localIdentName: '[uniqueName]__[local]__[hash:6]',
+      },
+    },
     rules: [
       {
         test: /\.svg$/,
         type: 'asset',
       },
       {
+        // `*.module.css` — CSS-модули, остальные файлы — глобальные стили.
         test: /\.css$/,
-        use: ['postcss-loader'],
-        type: 'css',
+        type: 'css/auto',
       },
       {
         test: /\.(jsx?|tsx?)$/,
@@ -78,7 +85,7 @@ export default defineConfig({
       template: './index.html',
     }),
     new ModuleFederationPlugin(mfConfig),
-    isDev ? new RefreshPlugin() : null,
+    isDev ? new ReactRefreshRspackPlugin() : null,
   ].filter(Boolean),
   optimization: {
     minimizer: [
