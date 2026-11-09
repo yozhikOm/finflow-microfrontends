@@ -17,4 +17,9 @@ jobs:
     steps:
       # Версии и пакеты описаны в release-please-config.json,
       # текущие версии хранятся в .release-please-manifest.json.
+      # PR, открытые от GITHUB_TOKEN, не запускают другие workflow, и release PR
+      # остался бы без обязательных проверок в master. Поэтому PR открываются
+      # от токена из секрета; пока его нет, работает GITHUB_TOKEN.
       - uses: googleapis/release-please-action@v5
+        with:
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}

@@ -2,7 +2,8 @@ name: Sync develop
 
 # release-please коммитит версии и CHANGELOG.md прямо в master, hotfix/* тоже
 # вливается в master. Чтобы develop не расходился с master, после каждого push
-# в master вливаем master в develop merge commit-ом (ADR-0012).
+# в master вливаем master в develop (ADR-0012). Если develop уже целиком
+# в master, слияние сводится к fast-forward и лишнего коммита нет.
 
 on:
   push:
@@ -39,7 +40,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git checkout -B develop origin/develop
-          if git merge --no-ff --no-edit origin/master; then
+          if git merge --no-edit origin/master; then
             git push origin develop
           else
             git merge --abort
@@ -72,7 +73,7 @@ jobs:
           git fetch origin
           git checkout develop
           git pull --ff-only
-          git merge --no-ff origin/master
+          git merge origin/master
           # разрешить конфликты, git add, git commit
           git push origin develop
           ```

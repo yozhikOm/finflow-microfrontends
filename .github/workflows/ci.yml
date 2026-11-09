@@ -82,7 +82,7 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run build
-      # Тесты server нужны MongoDB, они идут в отдельном job smoke.
+      # Тестам server нужна MongoDB, они идут в отдельном job smoke.
       - if: matrix.package != 'server'
         run: npm test --if-present
 

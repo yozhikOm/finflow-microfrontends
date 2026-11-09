@@ -24,7 +24,10 @@ jobs:
           cache: npm
           cache-dependency-path: package-lock.json
       - run: npm ci
+      # GitHub дописывает к заголовку squash-коммита « (#номер)». Проверяем
+      # заголовок вместе с ним: так commitlint увидит его после слияния.
       - name: Lint PR title
         env:
           TITLE: ${{ github.event.pull_request.title }}
-        run: printf '%s\n' "$TITLE" | npx commitlint --verbose
+          NUMBER: ${{ github.event.pull_request.number }}
+        run: printf '%s (#%s)\n' "$TITLE" "$NUMBER" | npx commitlint --verbose
