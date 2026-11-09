@@ -10,7 +10,7 @@ release-please reads these messages to version each app and write its `CHANGELOG
 
 Scope is the app or package: `server`, `shell`, `transactions`, `accounts`, `analytics`, `ui`, `events`, `routes` or `remote`. Root-level changes (CI, tooling, docs) take no scope.
 
-release-please assigns a commit to an app by the paths it touches, not by its scope. Keep each commit within one app so it lands in the right changelog.
+release-please assigns a commit to an app or package by the paths it touches, not by its scope. Keep each commit within one app or package so it lands in the right changelog.
 
 Versions in `package.json`, `.release-please-manifest.json` and every `CHANGELOG.md` belong to release-please: they change when the release PR merges.
 
@@ -20,13 +20,13 @@ The flow is in ADR-0012:
 
 - Nobody commits to `master` directly. Branch off `develop`, open a PR into `develop`, merge it by squash. The PR title becomes the commit, so it must be a Conventional Commit too: CI lints it.
 - `develop` goes into `master` by a PR merged with a merge commit only. A squash would hide the commit types and paths release-please reads.
-- An urgent fix, or a revert after a rollback, goes from `hotfix/*` off `master` straight into `master`.
-- Every app and package gets its own release PR. Merge them one at a time, producer first.
+- An urgent fix, or a revert after a rollback, goes from `hotfix/*` off `master` straight into `master`, by a merge commit like any PR into `master`.
+- Every app and package gets its own release PR. Merge them one at a time, the producer first: the app that adds a GraphQL field or a Module Federation export ships before the apps that use it.
 - After each push to `master` a workflow merges `master` into `develop`. On a conflict it opens a PR from `master` into `develop`: resolve it locally by merging `master` into `develop` and pushing. Never merge that PR with the button, since squash breaks the link between the branches.
 
 ## Checks
 
-The apps are independent npm packages, each with its own lockfile. Lint and formatting run once from the repo root (`npm run lint`, `npm run format:check`). Typecheck, build and tests run inside each app. The server smoke test needs MongoDB at `MONGODB_URI` (default `mongodb://localhost:27017/finflow-test`).
+The apps and packages are independent npm packages, each with its own lockfile. Lint and formatting run once from the repo root (`npm run lint`, `npm run format:check`). Typecheck, build and tests run inside each app or package. The server smoke test needs MongoDB at `MONGODB_URI` (default `mongodb://localhost:27017/finflow-test`).
 
 ## Agent skills
 
