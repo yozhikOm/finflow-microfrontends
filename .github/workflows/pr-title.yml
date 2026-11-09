@@ -1,0 +1,30 @@
+name: PR title
+
+# В develop рабочая ветка вливается squash-ом, и заголовок PR становится
+# сообщением коммита. release-please читает его, когда develop придёт в master,
+# поэтому заголовок проверяется той же конфигурацией commitlint (ADR-0012).
+
+on:
+  pull_request:
+    branches: [develop]
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  commitlint:
+    name: PR title
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+      - name: Lint PR title
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: printf '%s\n' "$TITLE" | npx commitlint --verbose

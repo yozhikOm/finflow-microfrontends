@@ -1,9 +1,13 @@
 name: CI
 
+# Быстрые проверки обязательны в PR в develop и в master (ADR-0012).
+# Push в develop и master проверяется ещё раз: туда попадают слияние
+# master → develop от sync-develop и коммиты release-please.
 on:
   push:
-    branches: [master]
+    branches: [master, develop]
   pull_request:
+    branches: [develop, master]
 
 permissions:
   contents: read
@@ -78,6 +82,9 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run build
+      # Тесты server нужны MongoDB, они идут в отдельном job smoke.
+      - if: matrix.package != 'server'
+        run: npm test --if-present
 
   smoke:
     name: Smoke test (server)

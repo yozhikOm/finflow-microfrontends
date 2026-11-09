@@ -1,0 +1,82 @@
+name: Sync develop
+
+# release-please коммитит версии и CHANGELOG.md прямо в master, hotfix/* тоже
+# вливается в master. Чтобы develop не расходился с master, после каждого push
+# в master вливаем master в develop merge commit-ом (ADR-0012).
+
+on:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: sync-develop
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      # develop защищён: только через PR. Слияние пушит deploy key, которому
+      # правило защиты разрешает обход. GITHUB_TOKEN обойти его не может.
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ssh-key: ${{ secrets.DEVELOP_SYNC_KEY }}
+
+      - name: Merge master into develop
+        id: merge
+        run: |
+          if ! git ls-remote --exit-code --heads origin develop > /dev/null; then
+            echo "::notice::Ветки develop ещё нет, синхронизировать нечего."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git checkout -B develop origin/develop
+          if git merge --no-ff --no-edit origin/master; then
+            git push origin develop
+          else
+            git merge --abort
+            echo "conflict=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # PR из master в develop нужен как напоминание: конфликт разрешают
+      # локально, и PR закроется сам, когда master окажется в develop.
+      # Кнопкой его не мержат: в develop разрешён только squash, а squash
+      # потеряет связь с master, и следующий develop → master снова даст конфликт.
+      - name: Open PR on conflict
+        if: steps.merge.outputs.conflict == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          existing=$(gh pr list --base develop --head master --state open --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            echo "::warning::Конфликт master → develop, PR #$existing уже открыт."
+            exit 0
+          fi
+
+          gh pr create --base develop --head master \
+            --title "chore: merge master into develop" \
+            --body-file - <<'EOF'
+          Автоматическое слияние `master` в `develop` остановилось на конфликте.
+
+          Разрешите его локально и запушьте `develop` (нужен обход защиты ветки):
+
+          ```sh
+          git fetch origin
+          git checkout develop
+          git pull --ff-only
+          git merge --no-ff origin/master
+          # разрешить конфликты, git add, git commit
+          git push origin develop
+          ```
+
+          PR закроется сам, когда `master` окажется в `develop`. Не мержите его кнопкой: в `develop` разрешён только squash, а squash потеряет связь с `master`.
+          EOF
+          echo "::warning::Конфликт master → develop, открыт PR."
