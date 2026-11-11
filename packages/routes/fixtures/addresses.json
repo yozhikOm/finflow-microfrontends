@@ -1,0 +1,47 @@
+[
+  {
+    "route": "transactions",
+    "url": "/transactions",
+    "params": {}
+  },
+  {
+    "route": "transactions",
+    "url": "/transactions?category=665f1c2e9b1e8a3d4c5b6a71&month=2026-03&currency=RUB&account=665f1c2e9b1e8a3d4c5b6a72",
+    "params": {
+      "category": "665f1c2e9b1e8a3d4c5b6a71",
+      "month": "2026-03",
+      "currency": "RUB",
+      "account": "665f1c2e9b1e8a3d4c5b6a72"
+    }
+  },
+  {
+    "route": "transactions",
+    "url": "/transactions?month=2026-11&currency=USD",
+    "params": { "month": "2026-11", "currency": "USD" }
+  },
+  {
+    "route": "transactions",
+    "url": "/transactions?category=665f1c2e9b1e8a3d4c5b6a71&month=2026-13&currency=XYZ",
+    "params": { "category": "665f1c2e9b1e8a3d4c5b6a71" }
+  },
+  {
+    "route": "newTransaction",
+    "url": "/transactions/new",
+    "params": {}
+  },
+  {
+    "route": "newTransaction",
+    "url": "/transactions/new?account=665f1c2e9b1e8a3d4c5b6a72",
+    "params": { "account": "665f1c2e9b1e8a3d4c5b6a72" }
+  },
+  {
+    "route": "account",
+    "url": "/accounts/665f1c2e9b1e8a3d4c5b6a72",
+    "params": { "id": "665f1c2e9b1e8a3d4c5b6a72" }
+  },
+  {
+    "route": "analytics",
+    "url": "/analytics",
+    "params": {}
+  }
+]
