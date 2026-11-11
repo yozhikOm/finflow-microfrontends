@@ -35,7 +35,7 @@ jobs:
           OUTPUTS: ${{ toJSON(steps.release.outputs) }}
         run: |
           packages=$(jq -c '. as $out
-            | ($out.paths_released // "[]" | fromjson)
+            | ($out.paths_released // "" | if . == "" then [] else fromjson end)
             | map(select(startswith("packages/"))
                   | {path: ., tag: $out[. + "--tag_name"]})' <<< "$OUTPUTS")
           echo "packages=$packages" >> "$GITHUB_OUTPUT"

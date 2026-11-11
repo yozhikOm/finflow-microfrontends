@@ -1,18 +1,20 @@
-// Narrowing check for shared packages (ADR-0012, ADR-0013).
+// Проверка сужения общих пакетов (ADR-0012, ADR-0013).
 //
-// Compares the golden fixtures of every package in `packages/` with the
-// fixtures at the package's latest release tag `<package>-v*`. A removed or
-// changed fixture narrows the contract, so the PR title must carry `!`.
-// A package without a release tag yet is skipped.
+// Для каждого пакета в `packages/` сравнивает «золотые» фикстуры с теми, что
+// лежат на последнем теге выпуска `<пакет>-v*`. Если PR удаляет или меняет
+// фикстуру выпущенной версии, он сужает контракт, и в заголовке PR нужен `!`.
+// Пакет без тега выпуска пропускается. Тег ищется по имени каталога пакета,
+// поэтому `component` пакета в release-please-config.json совпадает с ним.
 //
-// Usage: PR_TITLE='feat(routes): …' node scripts/check-narrowing.js
-// Needs the full history with tags (`fetch-depth: 0`).
+// Запуск: BASE_SHA=<база PR> PR_TITLE='feat(routes): …' node scripts/check-narrowing.js
+// Нужна полная история с тегами (`fetch-depth: 0`).
 
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { findNarrowing, isBreakingTitle } from './narrowing.js';
 
 const title = process.env.PR_TITLE ?? '';
+const baseSha = process.env.BASE_SHA || 'HEAD';
 
 const git = (...args) =>
   execFileSync('git', args, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
@@ -22,18 +24,20 @@ function latestTag(name) {
   return tags.split('\n').find(Boolean);
 }
 
-function fixturesAt(tag, dir) {
-  const files = git('ls-tree', '-r', '--name-only', tag, '--', dir)
+/** JSON-файлы фикстур из каталога `dir` на коммите `rev`. */
+function fixturesAt(rev, dir) {
+  const files = git('ls-tree', '-r', '--name-only', rev, '--', dir)
     .split('\n')
     .filter((file) => file.endsWith('.json'));
   return Object.fromEntries(
-    files.map((file) => [file, JSON.parse(git('show', `${tag}:${file}`))]),
+    files.map((file) => [file, JSON.parse(git('show', `${rev}:${file}`))]),
   );
 }
 
-function currentFixtures(previous) {
+/** Фикстуры из рабочего дерева, то есть из головы PR. */
+function fixturesInWorkTree(files) {
   return Object.fromEntries(
-    Object.keys(previous)
+    files
       .filter((file) => existsSync(file))
       .map((file) => [file, JSON.parse(readFileSync(file, 'utf8'))]),
   );
@@ -48,14 +52,19 @@ const packages = readdirSync('packages', { withFileTypes: true })
 for (const name of packages) {
   const tag = latestTag(name);
   if (!tag) {
-    console.log(`${name}: no release tag yet, skipped`);
+    console.log(`${name}: тега выпуска ещё нет, проверка пропущена`);
     continue;
   }
 
-  const previous = fixturesAt(tag, `packages/${name}/fixtures`);
-  const narrowing = findNarrowing(previous, currentFixtures(previous));
+  const dir = `packages/${name}/fixtures`;
+  const released = fixturesAt(tag, dir);
+  const narrowing = findNarrowing(
+    released,
+    fixturesAt(baseSha, dir),
+    fixturesInWorkTree(Object.keys(released)),
+  );
   if (narrowing.length === 0) {
-    console.log(`${name}: fixtures of ${tag} are intact`);
+    console.log(`${name}: этот PR не трогает фикстуры ${tag}`);
     continue;
   }
 
@@ -64,14 +73,13 @@ for (const name of packages) {
     .join('\n');
   if (isBreakingTitle(title)) {
     console.log(
-      `${name}: fixtures of ${tag} removed or changed, PR is breaking:\n${list}`,
+      `${name}: PR сужает контракт ${tag}, в заголовке есть «!»:\n${list}`,
     );
   } else {
     failed = true;
     console.error(
-      `::error::${name}: fixtures of ${tag} removed or changed. ` +
-        `This narrows the contract: mark the PR title with "!" (major) ` +
-        `or restore the fixtures.\n${list}`,
+      `::error::${name}: PR удаляет или меняет фикстуры ${tag} и этим сужает ` +
+        `контракт. Поставьте «!» в заголовок PR (major) или верните фикстуры.\n${list}`,
     );
   }
 }

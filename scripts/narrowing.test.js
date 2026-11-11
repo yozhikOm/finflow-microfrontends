@@ -9,17 +9,22 @@ const transactions = {
 };
 const analytics = { route: 'analytics', url: '/analytics', params: {} };
 
+const FILE = 'fixtures/addresses.json';
+
+/** База PR совпадает с выпущенной версией, меняется только голова PR. */
+const narrowingOf = (released, head) => findNarrowing(released, released, head);
+
 describe('findNarrowing', () => {
   it('finds nothing when fixtures are unchanged', () => {
-    const fixtures = { 'fixtures/addresses.json': [transactions, analytics] };
-    assert.deepEqual(findNarrowing(fixtures, fixtures), []);
+    const fixtures = { [FILE]: [transactions, analytics] };
+    assert.deepEqual(narrowingOf(fixtures, fixtures), []);
   });
 
   it('allows new fixtures', () => {
     assert.deepEqual(
-      findNarrowing(
-        { 'fixtures/addresses.json': [transactions] },
-        { 'fixtures/addresses.json': [transactions, analytics] },
+      narrowingOf(
+        { [FILE]: [transactions] },
+        { [FILE]: [transactions, analytics] },
       ),
       [],
     );
@@ -27,28 +32,25 @@ describe('findNarrowing', () => {
 
   it('reports a removed fixture', () => {
     assert.deepEqual(
-      findNarrowing(
-        { 'fixtures/addresses.json': [transactions, analytics] },
-        { 'fixtures/addresses.json': [transactions] },
+      narrowingOf(
+        { [FILE]: [transactions, analytics] },
+        { [FILE]: [transactions] },
       ),
-      [{ file: 'fixtures/addresses.json', fixture: analytics }],
+      [{ file: FILE, fixture: analytics }],
     );
   });
 
   it('reports a changed fixture even if the new version is added', () => {
     const changed = { ...analytics, params: { month: '2026-01' } };
     assert.deepEqual(
-      findNarrowing(
-        { 'fixtures/addresses.json': [analytics] },
-        { 'fixtures/addresses.json': [changed] },
-      ),
-      [{ file: 'fixtures/addresses.json', fixture: analytics }],
+      narrowingOf({ [FILE]: [analytics] }, { [FILE]: [changed] }),
+      [{ file: FILE, fixture: analytics }],
     );
   });
 
   it('reports every fixture of a removed file', () => {
     assert.deepEqual(
-      findNarrowing({ 'fixtures/old.json': [transactions, analytics] }, {}),
+      narrowingOf({ 'fixtures/old.json': [transactions, analytics] }, {}),
       [
         { file: 'fixtures/old.json', fixture: transactions },
         { file: 'fixtures/old.json', fixture: analytics },
@@ -59,12 +61,28 @@ describe('findNarrowing', () => {
   it('ignores the order of fixtures and of their keys', () => {
     const reordered = { params: {}, url: '/analytics', route: 'analytics' };
     assert.deepEqual(
-      findNarrowing(
-        { 'fixtures/addresses.json': [transactions, analytics] },
-        { 'fixtures/addresses.json': [reordered, transactions] },
+      narrowingOf(
+        { [FILE]: [transactions, analytics] },
+        { [FILE]: [reordered, transactions] },
       ),
       [],
     );
+  });
+
+  // Ломающий PR, влитый в develop, не должен красить каждый следующий PR
+  // до выпуска пакета.
+  it('ignores fixtures that the PR base already dropped', () => {
+    const released = { [FILE]: [transactions, analytics] };
+    const base = { [FILE]: [transactions] };
+    assert.deepEqual(findNarrowing(released, base, base), []);
+  });
+
+  it('reports only what the PR itself drops', () => {
+    const released = { [FILE]: [transactions, analytics] };
+    const base = { [FILE]: [transactions] };
+    assert.deepEqual(findNarrowing(released, base, {}), [
+      { file: FILE, fixture: transactions },
+    ]);
   });
 });
 

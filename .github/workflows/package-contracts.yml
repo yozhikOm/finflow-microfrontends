@@ -4,7 +4,8 @@ name: Package contracts
 # удалённая или изменённая «золотая» фикстура по сравнению с последним тегом
 # `<пакет>-v*` без `!` даёт красный CI. Заголовок PR — будущий коммит в PR
 # в develop и в PR hotfix/* → master (ADR-0012), там проверка и идёт.
-# `edited` перезапускает её, когда в заголовок добавили `!`.
+# `edited` перезапускает её, когда в заголовок добавили `!`. На счёт PR идёт
+# только то, что убирает он сам: сужение, уже влитое в базу, следующие PR не красит.
 
 on:
   pull_request:
@@ -32,4 +33,5 @@ jobs:
       - name: Compare fixtures with the latest package tags
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: node scripts/check-narrowing.js

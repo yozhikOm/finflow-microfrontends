@@ -65,7 +65,7 @@ jobs:
           fi
 
   check:
-    name: Typecheck, build and test (${{ matrix.package }})
+    name: Typecheck and build (${{ matrix.package }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
