@@ -21,6 +21,7 @@ export default defineConfig([
       '*/rspack.config.ts',
       '*/module-federation.config.ts',
       '*.config.js',
+      'scripts/**/*.js',
     ],
     languageOptions: {
       globals: globals.node,

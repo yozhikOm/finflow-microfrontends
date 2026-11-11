@@ -7,6 +7,10 @@
   "packages": {
     "server": {},
     "shell": {},
-    "transactions": {}
+    "transactions": {},
+    "packages/routes": {
+      "component": "routes",
+      "initial-version": "1.0.0"
+    }
   }
 }
