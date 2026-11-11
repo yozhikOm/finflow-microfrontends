@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest';
 import addresses from '../fixtures/addresses.json' with { type: 'json' };
 import { routes } from './index.js';
 
-// Golden fixtures (ADR-0012): addresses that this and past versions of the
-// package built. Each must still parse to the recorded parameters. Fixtures are
-// written by hand and removed or changed only in a major release.
+// «Золотые» фикстуры (ADR-0012): адреса, которые строили эта и прошлые версии
+// пакета. Каждый обязан разбираться в записанные параметры. Фикстуры пишутся
+// руками, удаляются и меняются только в major.
 interface Fixture {
   route: string;
   url: string;

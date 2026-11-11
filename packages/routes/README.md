@@ -1,6 +1,6 @@
 # @yozhikom/finflow-routes
 
-Prefixes of the FinFlow remote apps and their public addresses (ADR-0008). Links to a neighbour app, and to an app's own public address, are built only through this package, so a changed address breaks compilation instead of a link in production.
+Префиксы remote-приложений FinFlow и их публичные адреса (ADR-0008). Ссылки на соседа и на собственный публичный адрес строятся только через этот пакет: смена адреса ломает компиляцию, а не ссылку в проде.
 
 ```ts
 import { prefixes, routes } from '@yozhikom/finflow-routes';
@@ -9,22 +9,22 @@ routes.transactions.build({ month: '2026-03', currency: 'RUB' });
 // '/transactions?month=2026-03&currency=RUB'
 
 routes.transactions.parse('/transactions?month=2026-13&category=c1');
-// { category: 'c1' }: a parameter of the wrong shape is silently dropped
+// { category: 'c1' }: параметр неверной формы молча отброшен
 
-routes.account.parse('/analytics'); // null: not this address
+routes.account.parse('/analytics'); // null: это другой адрес
 ```
 
-| Address             | Builder and parser      | Parameters                                                      |
-| ------------------- | ----------------------- | --------------------------------------------------------------- |
-| `/transactions`     | `routes.transactions`   | optional `category`, `month` (`YYYY-MM`), `currency`, `account` |
-| `/transactions/new` | `routes.newTransaction` | optional `account`                                              |
-| `/accounts/<id>`    | `routes.account`        | `id`                                                            |
-| `/analytics`        | `routes.analytics`      | none                                                            |
+| Адрес               | Построить и разобрать   | Параметры                                                             |
+| ------------------- | ----------------------- | --------------------------------------------------------------------- |
+| `/transactions`     | `routes.transactions`   | необязательные `category`, `month` (`YYYY-MM`), `currency`, `account` |
+| `/transactions/new` | `routes.newTransaction` | необязательный `account`                                              |
+| `/accounts/<id>`    | `routes.account`        | `id`                                                                  |
+| `/analytics`        | `routes.analytics`      | нет                                                                   |
 
-`parse` takes a path with a query or an absolute URL and returns the typed parameters, or `null` when the URL is a different address. Whether the entity behind an id exists is checked by the owner app.
+`parse` принимает путь с query или абсолютный URL и возвращает типизированные параметры, а для другого адреса — `null`. Существует ли сущность с таким id, проверяет приложение-владелец.
 
-## Compatibility
+## Совместимость
 
-Each app bundles its own version of the package, so versions must understand each other. `fixtures/addresses.json` holds golden addresses built by this and past versions; the tests require every one of them to parse, and at least one fixture per public address. A fixture is removed or changed only in a major release: CI compares the fixtures with the latest `routes-v*` tag and fails unless the PR title is marked with `!`.
+Каждое приложение бандлит свою версию пакета, поэтому версии должны понимать друг друга. В `fixtures/addresses.json` лежат «золотые» адреса, которые строили эта и прошлые версии. Тесты требуют, чтобы каждый разбирался, и хотя бы одну фикстуру на каждый публичный адрес. Фикстура удаляется или меняется только в major: CI сравнивает фикстуры с последним тегом `routes-v*` и краснеет, если в заголовке PR нет `!`.
 
-A new address or parameter is a `feat` (minor). A renamed or removed address, parameter or prefix is a `feat!` (major) and ships in the expand–contract steps of ADR-0011.
+Новый адрес или параметр — `feat` (minor). Переименование или удаление адреса, параметра или префикса — `feat!` (major), и выкатывается оно шагами ADR-0011.
