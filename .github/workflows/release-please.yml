@@ -4,8 +4,9 @@ on:
   push:
     branches: [master]
 
-# Права на запись нужны только этому workflow: создать release-PR,
+# Права на запись нужны только release-please: создать release-PR,
 # повесить на него метки и после мержа создать тег и GitHub Release.
+# У job публикации пакетов свои права.
 permissions:
   contents: write
   pull-requests: write
@@ -14,6 +15,8 @@ permissions:
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.packages.outputs.packages }}
     steps:
       # Версии и пакеты описаны в release-please-config.json,
       # текущие версии хранятся в .release-please-manifest.json.
@@ -21,5 +24,63 @@ jobs:
       # остался бы без обязательных проверок в master. Поэтому PR открываются
       # от токена из секрета; пока его нет, работает GITHUB_TOKEN.
       - uses: googleapis/release-please-action@v5
+        id: release
         with:
           token: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
+
+      # Выпущенные общие пакеты из packages/ с их тегами: `[{path, tag}]`.
+      - name: List released packages
+        id: packages
+        env:
+          OUTPUTS: ${{ toJSON(steps.release.outputs) }}
+        run: |
+          packages=$(jq -c '. as $out
+            | ($out.paths_released // "" | if . == "" then [] else fromjson end)
+            | map(select(startswith("packages/"))
+                  | {path: ., tag: $out[. + "--tag_name"]})' <<< "$OUTPUTS")
+          echo "packages=$packages" >> "$GITHUB_OUTPUT"
+
+  # Выпущенный пакет публикуется на npmjs со сборки своего тега через trusted
+  # publishing, без NPM_TOKEN (ADR-0013). Trusted publisher на npmjs.com
+  # настроен на имя этого файла: при переименовании его надо поменять и там.
+  publish:
+    needs: release-please
+    if: needs.release-please.outputs.packages != '[]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.release-please.outputs.packages) }}
+    defaults:
+      run:
+        working-directory: ${{ matrix.path }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ matrix.tag }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: ${{ matrix.path }}/package-lock.json
+          registry-url: https://registry.npmjs.org
+      # Trusted publishing работает с npm 11.5.1 и новее.
+      - run: npm install --global npm@^11.5.1
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build --if-present
+      # Trusted publisher настраивается только у существующего пакета, поэтому
+      # первая версия публикуется вручную (ADR-0013). Без неё OIDC-публикация
+      # упала бы с непонятной ошибкой авторизации.
+      - name: Check that the package exists on npmjs
+        run: |
+          name=$(node -p "require('./package.json').name")
+          if ! curl -fsS -o /dev/null "https://registry.npmjs.org/${name/\//%2f}"; then
+            echo "::error::$name ещё нет на npmjs. Первую версию опубликуйте вручную со сборки тега ${{ matrix.tag }} и настройте trusted publisher (ADR-0013)."
+            exit 1
+          fi
+      - run: npm publish --provenance --access public

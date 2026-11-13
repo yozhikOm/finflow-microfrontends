@@ -1,0 +1,37 @@
+name: Package contracts
+
+# Сужение контракта общего пакета требует `!` в заголовке PR (ADR-0013):
+# удалённая или изменённая «золотая» фикстура по сравнению с последним тегом
+# `<пакет>-v*` без `!` даёт красный CI. Заголовок PR — будущий коммит в PR
+# в develop и в PR hotfix/* → master (ADR-0012), там проверка и идёт.
+# `edited` перезапускает её, когда в заголовок добавили `!`. На счёт PR идёт
+# только то, что убирает он сам: сужение, уже влитое в базу, следующие PR не красит.
+
+on:
+  pull_request:
+    branches: [develop, master]
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  narrowing:
+    name: Package narrowing
+    if: >-
+      github.base_ref == 'develop' ||
+      startsWith(github.head_ref, 'hotfix/')
+    runs-on: ubuntu-latest
+    steps:
+      # Нужны теги пакетов и их история.
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+      - name: Compare fixtures with the latest package tags
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: node scripts/check-narrowing.js

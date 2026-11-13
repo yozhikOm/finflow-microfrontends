@@ -30,6 +30,8 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run format:check
+      # Тесты скриптов CI из scripts/ (проверка сужения пакетов).
+      - run: node --test 'scripts/*.test.js'
 
   commitlint:
     name: Commit messages
@@ -68,7 +70,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package: [server, shell, transactions]
+        package: [server, shell, transactions, packages/routes]
     defaults:
       run:
         working-directory: ${{ matrix.package }}
