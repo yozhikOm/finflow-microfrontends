@@ -19,6 +19,10 @@
     "packages/ui": {
       "component": "ui",
       "initial-version": "1.0.0"
+    },
+    "packages/events": {
+      "component": "events",
+      "initial-version": "1.0.0"
     }
   }
 }
