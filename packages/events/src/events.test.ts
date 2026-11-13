@@ -22,15 +22,17 @@ describe('publish and subscribe', () => {
 
   it('delivers only the event types the subscriber asked for', async () => {
     const accounts = vi.fn();
-    const all = vi.fn();
+    const categoriesAndAccounts = vi.fn();
     listen(['accounts-changed'], accounts);
-    listen(['categories-changed', 'accounts-changed'], all);
+    listen(['categories-changed', 'accounts-changed'], categoriesAndAccounts);
 
     publish('categories-changed');
     publish('accounts-changed');
 
-    await vi.waitFor(() => expect(all).toHaveBeenCalledTimes(2));
-    expect(all.mock.calls).toEqual([
+    await vi.waitFor(() =>
+      expect(categoriesAndAccounts).toHaveBeenCalledTimes(2),
+    );
+    expect(categoriesAndAccounts.mock.calls).toEqual([
       ['categories-changed'],
       ['accounts-changed'],
     ]);
@@ -38,16 +40,16 @@ describe('publish and subscribe', () => {
   });
 
   it('stops delivering events after unsubscribe', async () => {
-    const unsubscribed = vi.fn();
+    const removedListener = vi.fn();
     const witness = vi.fn();
-    const unsubscribe = subscribe(['accounts-changed'], unsubscribed);
+    const unsubscribe = subscribe(['accounts-changed'], removedListener);
     listen(['accounts-changed'], witness);
 
     unsubscribe();
     publish('accounts-changed');
 
     await vi.waitFor(() => expect(witness).toHaveBeenCalled());
-    expect(unsubscribed).not.toHaveBeenCalled();
+    expect(removedListener).not.toHaveBeenCalled();
   });
 
   it('ignores messages that are not known events', async () => {

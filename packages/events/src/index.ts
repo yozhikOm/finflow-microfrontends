@@ -1,4 +1,7 @@
-/** Имя канала `BroadcastChannel`, через который приложения шлют события. */
+/**
+ * Имя канала `BroadcastChannel`, через который приложения шлют события.
+ * Смена имени — major: версии со старым именем перестанут слышать новые.
+ */
 export const CHANNEL = 'finflow-events';
 
 /**
@@ -11,8 +14,8 @@ export const eventsByOwner = {
   accounts: ['accounts-changed'],
 } as const;
 
-export type Owner = keyof typeof eventsByOwner;
-export type FinflowEvent = (typeof eventsByOwner)[Owner][number];
+export type FinflowEvent =
+  (typeof eventsByOwner)[keyof typeof eventsByOwner][number];
 
 /** Поле `type` сообщения канала, если сообщение — объект. */
 const messageType = (data: unknown): unknown =>

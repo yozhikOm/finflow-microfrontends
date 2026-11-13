@@ -1,5 +1,14 @@
 [
-  { "type": "transactions-changed" },
-  { "type": "categories-changed" },
-  { "type": "accounts-changed" }
+  {
+    "channel": "finflow-events",
+    "message": { "type": "transactions-changed" }
+  },
+  {
+    "channel": "finflow-events",
+    "message": { "type": "categories-changed" }
+  },
+  {
+    "channel": "finflow-events",
+    "message": { "type": "accounts-changed" }
+  }
 ]
