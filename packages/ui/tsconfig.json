@@ -1,0 +1,24 @@
+{
+  // Кит публикуется исходниками, и их проверяет `tsc` потребителя по своим
+  // настройкам (ADR-0013). Поэтому настройки повторяют настройки приложений
+  // (ES2020, bundler) и строже их: код кита должен компилироваться у любого.
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["DOM", "DOM.Iterable", "ES2020"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "useDefineForClassFields": true,
+    // Глобальных типов Node у потребителей нет. Тесты, которым они нужны,
+    // подключают их сами через `/// <reference types="node" />`.
+    "types": []
+  },
+  "include": ["src", "types", ".storybook", "vitest.config.ts"]
+}

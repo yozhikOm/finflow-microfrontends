@@ -1,0 +1,9 @@
+/* Глобальные стили витрины. В приложениях их задаёт `shell`, а не кит. */
+body {
+  margin: 0;
+  background: var(--ff-color-bg);
+  color: var(--ff-color-text);
+  font-family: var(--ff-font-family);
+  font-size: var(--ff-font-size-md);
+  line-height: var(--ff-line-height);
+}

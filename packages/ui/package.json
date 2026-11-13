@@ -1,0 +1,55 @@
+{
+  "name": "@yozhikom/finflow-ui",
+  "version": "1.0.0",
+  "description": "FinFlow UI kit published as sources: theme tokens, form and list controls, Money and ErrorState",
+  "license": "ISC",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./theme.css": "./src/theme.css"
+  },
+  "files": [
+    "src",
+    "!src/**/*.stories.tsx",
+    "!src/**/*.test.ts"
+  ],
+  "sideEffects": [
+    "*.css"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yozhikOm/finflow-microfrontends.git",
+    "directory": "packages/ui"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "storybook build --quiet",
+    "storybook": "storybook dev --port 6006",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "@storybook/addon-a11y": "^10.6.7",
+    "@storybook/addon-docs": "^10.6.7",
+    "@storybook/addon-vitest": "^10.6.7",
+    "@storybook/react-vite": "^10.6.7",
+    "@types/node": "^24.19.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "@vitest/browser": "^5.1.0",
+    "@vitest/browser-playwright": "^5.1.0",
+    "playwright": "^1.65.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "storybook": "^10.6.7",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.0"
+  }
+}

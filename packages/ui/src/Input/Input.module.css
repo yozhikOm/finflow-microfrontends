@@ -1,0 +1,29 @@
+.input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--ff-control-height);
+  padding: 0 var(--ff-space-3);
+  border: var(--ff-border-width) solid var(--ff-color-border-strong);
+  border-radius: var(--ff-radius-sm);
+  background: var(--ff-color-surface);
+  color: var(--ff-color-text);
+  font-family: inherit;
+  font-size: var(--ff-font-size-md);
+  line-height: var(--ff-line-height);
+}
+
+.input:focus-visible {
+  outline: none;
+  border-color: var(--ff-color-accent);
+  box-shadow: var(--ff-focus-ring);
+}
+
+.input[aria-invalid='true'] {
+  border-color: var(--ff-color-danger);
+}
+
+.input:disabled {
+  background: var(--ff-color-surface-muted);
+  color: var(--ff-color-text-muted);
+  cursor: not-allowed;
+}

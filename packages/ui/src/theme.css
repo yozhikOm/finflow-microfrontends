@@ -1,0 +1,66 @@
+/*
+ * Тема FinFlow: имена и значения токенов одной светлой темы (ADR-0005).
+ *
+ * На странице тему подключает только `shell` и dev-обёртки remote-приложений,
+ * в сборку remote-приложения значения не попадают. Версии кита у `shell` и
+ * remote-приложения могут расходиться, поэтому в минорной версии токены только
+ * добавляются. Удаление или переименование токена — major: CI сверяет имена с
+ * последним тегом `ui-v*` и без `!` в заголовке PR красный (ADR-0013).
+ * Значения можно менять в любой версии.
+ */
+:root {
+  /* Цвета: фон и поверхности */
+  --ff-color-bg: #f5f6f8;
+  --ff-color-surface: #ffffff;
+  --ff-color-surface-muted: #eceef2;
+
+  /* Цвета: текст */
+  --ff-color-text: #1b1f24;
+  --ff-color-text-muted: #59616d;
+
+  /* Цвета: границы */
+  --ff-color-border: #c4cad3;
+  --ff-color-border-strong: #7d8794;
+
+  /* Цвета: акцент, например основная кнопка */
+  --ff-color-accent: #1d5bc9;
+  --ff-color-accent-hover: #17479e;
+  --ff-color-on-accent: #ffffff;
+
+  /* Цвета: ошибка и знак суммы */
+  --ff-color-danger: #b42318;
+  --ff-color-danger-surface: #fdeceb;
+  --ff-color-positive: #1a7334;
+  --ff-color-negative: #b42318;
+
+  /* Фокус с клавиатуры */
+  --ff-focus-ring: 0 0 0 3px rgb(29 91 201 / 40%);
+
+  /* Шрифт */
+  --ff-font-family:
+    system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+  --ff-font-size-sm: 0.8125rem;
+  --ff-font-size-md: 0.9375rem;
+  --ff-font-size-lg: 1.125rem;
+  --ff-font-weight-regular: 400;
+  --ff-font-weight-medium: 500;
+  --ff-font-weight-bold: 600;
+  --ff-line-height: 1.4;
+
+  /* Отступы */
+  --ff-space-1: 0.25rem;
+  --ff-space-2: 0.5rem;
+  --ff-space-3: 0.75rem;
+  --ff-space-4: 1rem;
+  --ff-space-5: 1.5rem;
+  --ff-space-6: 2rem;
+
+  /* Форма элементов */
+  --ff-border-width: 1px;
+  --ff-radius-sm: 4px;
+  --ff-radius-md: 8px;
+  --ff-control-height: 2.25rem;
+  --ff-control-height-sm: 1.75rem;
+  --ff-transition: 120ms ease-out;
+}
