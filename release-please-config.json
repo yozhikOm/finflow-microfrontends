@@ -15,6 +15,10 @@
     "packages/remote": {
       "component": "remote",
       "initial-version": "1.0.0"
+    },
+    "packages/ui": {
+      "component": "ui",
+      "initial-version": "1.0.0"
     }
   }
 }

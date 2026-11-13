@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { findNarrowing, isBreakingTitle } from './narrowing.js';
+import { findNarrowing, isBreakingTitle, themeTokens } from './narrowing.js';
 
 const transactions = {
   route: 'transactions',
@@ -96,5 +96,43 @@ describe('isBreakingTitle', () => {
     assert.equal(isBreakingTitle('feat(routes): drop the month filter'), false);
     assert.equal(isBreakingTitle('fix(routes): parse month!: 2026-01'), false);
     assert.equal(isBreakingTitle('feat(routes): wow!'), false);
+  });
+});
+
+describe('themeTokens', () => {
+  it('lists the custom properties a theme declares', () => {
+    const css = `
+      :root {
+        --ff-color-bg: #fff;
+        --ff-font-family:
+          system-ui, sans-serif;
+        --ff-space-1:0.25rem;
+      }
+    `;
+    assert.deepEqual(themeTokens(css), [
+      '--ff-color-bg',
+      '--ff-font-family',
+      '--ff-space-1',
+    ]);
+  });
+
+  it('ignores tokens that are only used or commented out', () => {
+    const css = `
+      /* --ff-old: red; */
+      :root {
+        --ff-ring: 0 0 0 3px var(--ff-color-accent);
+      }
+    `;
+    assert.deepEqual(themeTokens(css), ['--ff-ring']);
+  });
+
+  // Удалённый токен находится так же, как удалённая фикстура.
+  it('feeds findNarrowing like fixtures do', () => {
+    const file = 'packages/ui/src/theme.css';
+    const released = { [file]: themeTokens(':root { --a: 1; --b: 2; }') };
+    const renamed = { [file]: themeTokens(':root { --a: 1; --c: 2; }') };
+    assert.deepEqual(narrowingOf(released, renamed), [
+      { file, fixture: '--b' },
+    ]);
   });
 });

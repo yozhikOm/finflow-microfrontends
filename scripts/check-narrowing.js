@@ -1,8 +1,11 @@
 // Проверка сужения общих пакетов (ADR-0012, ADR-0013).
 //
-// Для каждого пакета в `packages/` сравнивает «золотые» фикстуры с теми, что
-// лежат на последнем теге выпуска `<пакет>-v*`. Если PR удаляет или меняет
-// фикстуру выпущенной версии, он сужает контракт, и в заголовке PR нужен `!`.
+// Для каждого пакета в `packages/` сравнивает его контракт с тем, что лежит на
+// последнем теге выпуска `<пакет>-v*`. Контракт — «золотые» фикстуры из
+// `fixtures/` (`routes`, `events`) и имена токенов `src/theme.css` (`ui`).
+// Если PR удаляет или меняет фикстуру выпущенной версии или удаляет либо
+// переименовывает её токен, он сужает контракт, и в заголовке PR нужен `!`.
+// Значения токенов сужением не считаются (ADR-0005).
 // Пакет без тега выпуска пропускается. Тег ищется по имени каталога пакета,
 // поэтому `component` пакета в release-please-config.json совпадает с ним.
 //
@@ -11,7 +14,7 @@
 
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
-import { findNarrowing, isBreakingTitle } from './narrowing.js';
+import { findNarrowing, isBreakingTitle, themeTokens } from './narrowing.js';
 
 const title = process.env.PR_TITLE ?? '';
 const baseSha = process.env.BASE_SHA || 'HEAD';
@@ -24,22 +27,33 @@ function latestTag(name) {
   return tags.split('\n').find(Boolean);
 }
 
-/** JSON-файлы фикстур из каталога `dir` на коммите `rev`. */
-function fixturesAt(rev, dir) {
+/** Файлы контракта пакета: фикстуры и тема. */
+const isContractFile = (file) =>
+  /\/fixtures\/.+\.json$/.test(file) || file.endsWith('/src/theme.css');
+
+/** Содержимое файла контракта: список фикстур или имён токенов. */
+const parseContract = (file, text) =>
+  file.endsWith('.css') ? themeTokens(text) : JSON.parse(text);
+
+/** Контракт пакета из каталога `dir` на коммите `rev`. */
+function contractAt(rev, dir) {
   const files = git('ls-tree', '-r', '--name-only', rev, '--', dir)
     .split('\n')
-    .filter((file) => file.endsWith('.json'));
+    .filter(isContractFile);
   return Object.fromEntries(
-    files.map((file) => [file, JSON.parse(git('show', `${rev}:${file}`))]),
+    files.map((file) => [
+      file,
+      parseContract(file, git('show', `${rev}:${file}`)),
+    ]),
   );
 }
 
-/** Фикстуры из рабочего дерева, то есть из головы PR. */
-function fixturesInWorkTree(files) {
+/** Контракт из рабочего дерева, то есть из головы PR. */
+function contractInWorkTree(files) {
   return Object.fromEntries(
     files
       .filter((file) => existsSync(file))
-      .map((file) => [file, JSON.parse(readFileSync(file, 'utf8'))]),
+      .map((file) => [file, parseContract(file, readFileSync(file, 'utf8'))]),
   );
 }
 
@@ -56,15 +70,15 @@ for (const name of packages) {
     continue;
   }
 
-  const dir = `packages/${name}/fixtures`;
-  const released = fixturesAt(tag, dir);
+  const dir = `packages/${name}`;
+  const released = contractAt(tag, dir);
   const narrowing = findNarrowing(
     released,
-    fixturesAt(baseSha, dir),
-    fixturesInWorkTree(Object.keys(released)),
+    contractAt(baseSha, dir),
+    contractInWorkTree(Object.keys(released)),
   );
   if (narrowing.length === 0) {
-    console.log(`${name}: этот PR не трогает фикстуры ${tag}`);
+    console.log(`${name}: этот PR не сужает контракт ${tag}`);
     continue;
   }
 
@@ -78,8 +92,9 @@ for (const name of packages) {
   } else {
     failed = true;
     console.error(
-      `::error::${name}: PR удаляет или меняет фикстуры ${tag} и этим сужает ` +
-        `контракт. Поставьте «!» в заголовок PR (major) или верните фикстуры.\n${list}`,
+      `::error::${name}: PR удаляет или меняет фикстуры либо удаляет или ` +
+        `переименовывает токены темы ${tag} и этим сужает контракт. ` +
+        `Поставьте «!» в заголовок PR (major) или верните их.\n${list}`,
     );
   }
 }

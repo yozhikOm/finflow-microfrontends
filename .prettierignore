@@ -2,5 +2,6 @@ dist
 node_modules
 @mf-types
 coverage
+storybook-static
 package-lock.json
 CHANGELOG.md

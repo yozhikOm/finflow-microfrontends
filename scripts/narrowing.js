@@ -51,3 +51,16 @@ export function findNarrowing(released, base, head) {
 export function isBreakingTitle(title) {
   return /^\w+(\([^()]*\))?!:/.test(title);
 }
+
+/**
+ * Имена токенов, которые объявляет `theme.css` кита: `['--ff-color-bg', …]`.
+ * Удаление или переименование токена сужает контракт `ui`, а смена значения —
+ * нет (ADR-0005). Имена сравниваются как фикстуры: `findNarrowing` принимает
+ * `{ [файл темы]: themeTokens(css) }`.
+ * @param {string} css
+ * @returns {string[]}
+ */
+export function themeTokens(css) {
+  const code = css.replace(/\/\*[\s\S]*?\*\//g, '');
+  return Array.from(code.matchAll(/(?:^|[{;\s])(--[\w-]+)\s*:/g), (m) => m[1]);
+}
