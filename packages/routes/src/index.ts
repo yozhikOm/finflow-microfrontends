@@ -9,7 +9,7 @@ export const prefixes = {
  * Валюты FinFlow. Повторяют `enum Currency` схемы `server`: пакеты ни от чего
  * не зависят (ADR-0013), поэтому список ведётся руками. Новая валюта — minor.
  */
-export const currencies = ['RUB', 'USD', 'EUR'] as const;
+const currencies = ['RUB', 'USD', 'EUR'] as const;
 export type Currency = (typeof currencies)[number];
 
 /** Фильтры списка транзакций, все необязательны и комбинируются. */
