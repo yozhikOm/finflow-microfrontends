@@ -1,8 +1,9 @@
 name: Package contracts
 
 # Сужение контракта общего пакета требует `!` в заголовке PR (ADR-0013):
-# удалённая или изменённая «золотая» фикстура по сравнению с последним тегом
-# `<пакет>-v*` без `!` даёт красный CI. Заголовок PR — будущий коммит в PR
+# удалённая или изменённая «золотая» фикстура `routes`/`events`, а также
+# удалённый или переименованный токен `theme.css` кита `ui` по сравнению
+# с последним тегом `<пакет>-v*` без `!` дают красный CI. Заголовок PR — будущий коммит в PR
 # в develop и в PR hotfix/* → master (ADR-0012), там проверка и идёт.
 # `edited` перезапускает её, когда в заголовок добавили `!`. На счёт PR идёт
 # только то, что убирает он сам: сужение, уже влитое в базу, следующие PR не красит.
@@ -30,7 +31,7 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
-      - name: Compare fixtures with the latest package tags
+      - name: Compare fixtures and theme tokens with the latest package tags
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
           BASE_SHA: ${{ github.event.pull_request.base.sha }}

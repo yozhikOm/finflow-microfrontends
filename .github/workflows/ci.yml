@@ -70,7 +70,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package: [server, shell, transactions, packages/routes, packages/remote]
+        package:
+          [
+            server,
+            shell,
+            transactions,
+            packages/routes,
+            packages/remote,
+            packages/ui,
+          ]
     defaults:
       run:
         working-directory: ${{ matrix.package }}
@@ -83,7 +91,11 @@ jobs:
           cache-dependency-path: ${{ matrix.package }}/package-lock.json
       - run: npm ci
       - run: npm run typecheck
+      # У ui сборка — витрина Storybook: её деплой — отдельная задача (ADR-0013).
       - run: npm run build
+      # Stories ui идут тестами в браузере (@storybook/addon-vitest, ADR-0012).
+      - if: matrix.package == 'packages/ui'
+        run: npx playwright install --with-deps chromium
       # Тестам server нужна MongoDB, они идут в отдельном job smoke.
       - if: matrix.package != 'server'
         run: npm test --if-present

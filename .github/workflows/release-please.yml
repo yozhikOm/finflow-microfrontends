@@ -71,7 +71,12 @@ jobs:
       - run: npm install --global npm@^11.5.1
       - run: npm ci
       - run: npm run typecheck
+      # Stories ui — тесты в браузере (@storybook/addon-vitest, ADR-0012).
+      - if: matrix.path == 'packages/ui'
+        run: npx playwright install --with-deps chromium
       - run: npm test
+      # ui публикуется исходниками, его сборка — только витрина и в пакет не
+      # входит (ADR-0005). Остальные пакеты публикуют `dist`.
       - run: npm run build --if-present
       # Trusted publisher настраивается только у существующего пакета, поэтому
       # первая версия публикуется вручную (ADR-0013). Без неё OIDC-публикация
