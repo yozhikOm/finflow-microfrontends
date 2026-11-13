@@ -41,3 +41,21 @@ routes.account.parse('/analytics'); // null: это другой адрес
 
 - Новый адрес, параметр или валюта — `feat`, минорная версия.
 - Переименование или удаление адреса, параметра или префикса — `feat!`, мажорная версия. Такое изменение выкатывают по шагам ADR-0011.
+
+## Первый выпуск
+
+Пакет публикуется из workflow `release-please.yml` через trusted publishing, без `NPM_TOKEN` (ADR-0013). Trusted publisher на npmjs.com можно настроить только у пакета, который уже есть в реестре. Поэтому версию `1.0.0` публикуют один раз вручную:
+
+1. Влить release PR пакета. Release-please создаст тег `routes-v1.0.0`. Job `publish` упадёт с ошибкой «ещё нет на npmjs»: так и должно быть.
+2. Собрать и опубликовать сборку тега:
+
+   ```sh
+   git checkout routes-v1.0.0
+   cd packages/routes
+   npm ci && npm run typecheck && npm test && npm run build
+   npm publish --access public
+   ```
+
+3. На npmjs.com в настройках пакета добавить trusted publisher: GitHub Actions, репозиторий `yozhikOm/finflow-microfrontends`, workflow `release-please.yml`. Имя файла должно совпадать точно.
+
+Перезапускать упавший job не нужно: версия `1.0.0` уже опубликована. Следующие версии публикует workflow.
