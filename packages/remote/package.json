@@ -1,0 +1,55 @@
+{
+  "name": "@yozhikom/finflow-remote",
+  "version": "1.0.0",
+  "description": "Loads FinFlow remote modules: retries, failure diagnostics and a lazy wrapper with a retryable failure UI",
+  "license": "ISC",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./runtime-plugin": {
+      "types": "./dist/runtime-plugin.d.ts",
+      "default": "./dist/runtime-plugin.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yozhikOm/finflow-microfrontends.git",
+    "directory": "packages/remote"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@module-federation/retry-plugin": "^2.9.3"
+  },
+  "peerDependencies": {
+    "@module-federation/runtime": "^2.9.3",
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "@module-federation/runtime": "^2.9.3",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/react": "^16.3.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "jsdom": "^31.0.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0"
+  }
+}
