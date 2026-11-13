@@ -19,6 +19,11 @@ export interface MoneyInputProps extends Omit<
   InputHTMLAttributes<HTMLInputElement>,
   'value' | 'defaultValue' | 'onChange' | 'type'
 > {
+  /**
+   * Значение снаружи. Новое значение поле показывает, если оно расходится с
+   * написанным. Текст, который не число, при сбросе в `amount: null` остаётся:
+   * для него значение не меняется. Чтобы очистить форму целиком, смените ей `key`.
+   */
   value: MoneyInputValue;
   onChange: (value: MoneyInputValue) => void;
   /** Из каких валют выбирать. С одной валютой выбора нет, код стоит рядом. */
@@ -44,30 +49,30 @@ export function MoneyInput({
   ...props
 }: MoneyInputProps) {
   const control = useFieldControl(props);
-  const [text, setText] = useState(() =>
-    value.amount === null ? '' : amountToText(value.amount, value.currency),
-  );
+  const [text, setText] = useState(() => valueToText(value));
 
-  // Сумму сменили снаружи, например сбросили форму: поле показывает её,
-  // если она не совпадает с тем, что в нём уже написано.
-  const [shownAmount, setShownAmount] = useState(value.amount);
-  if (value.amount !== shownAmount) {
-    setShownAmount(value.amount);
+  // Значение сменили снаружи, например сбросили форму или выбрали валюту:
+  // поле показывает его, если оно не совпадает с тем, что уже написано.
+  // Своё значение, вернувшееся через `onChange`, текст не трогает: иначе
+  // «350,» превращалось бы в «350» на ходу.
+  const [shown, setShown] = useState(value);
+  if (value.amount !== shown.amount || value.currency !== shown.currency) {
+    setShown(value);
     if (value.amount !== parseAmount(text, value.currency, allowNegative)) {
-      setText(
-        value.amount === null ? '' : amountToText(value.amount, value.currency),
-      );
+      setText(valueToText(value));
     }
   }
 
   const change = (nextText: string, currency: string) => {
-    const amount = parseAmount(nextText, currency, allowNegative);
+    const next = {
+      amount: parseAmount(nextText, currency, allowNegative),
+      currency,
+    };
     setText(nextText);
-    setShownAmount(amount);
-    onChange({ amount, currency });
+    setShown(next);
+    onChange(next);
   };
 
-  const [onlyCurrency] = currencies;
   return (
     <div className={[styles.moneyInput, className].filter(Boolean).join(' ')}>
       <input
@@ -96,10 +101,11 @@ export function MoneyInput({
           ))}
         </select>
       ) : (
-        <span className={styles.currencyCode}>
-          {onlyCurrency ?? value.currency}
-        </span>
+        <span className={styles.currencyCode}>{value.currency}</span>
       )}
     </div>
   );
 }
+
+const valueToText = ({ amount, currency }: MoneyInputValue) =>
+  amount === null ? '' : amountToText(amount, currency);

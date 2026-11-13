@@ -38,9 +38,9 @@ describe.each(modules)('$file', ({ css }) => {
     expect(used.filter((token) => !declared.has(token))).toEqual([]);
   });
 
-  it('has no colors or lengths of its own', () => {
+  it('has no colors, lengths or durations of its own', () => {
     const literals = css.match(
-      /#[\da-f]{3,8}\b|\b(?:rgba?|hsla?|oklch|lab)\(|\b\d*\.?\d+(?:px|rem|em|pt)\b/gi,
+      /#[\da-f]{3,8}\b|\b(?:rgba?|hsla?|oklch|lab)\(|\b\d*\.?\d+(?:px|rem|em|pt|ms|s)\b/gi,
     );
     expect(literals ?? []).toEqual([]);
   });

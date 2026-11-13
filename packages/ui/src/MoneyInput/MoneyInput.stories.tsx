@@ -186,3 +186,30 @@ export const WithError: Story = {
     );
   },
 };
+
+/** Валюту сменили снаружи: сумма показана по правилам новой валюты. */
+export const CurrencyChangedFromOutside: Story = {
+  args: {
+    currencies: ['RUB', 'JPY'],
+    value: { amount: 35050, currency: 'RUB' },
+  },
+  render: function Render(args) {
+    const [value, setValue] = useState<MoneyInputValue>(args.value);
+    return (
+      <>
+        <Field label="Сумма">
+          <MoneyInput {...args} value={value} onChange={setValue} />
+        </Field>
+        <Button onClick={() => setValue({ amount: 35050, currency: 'JPY' })}>
+          В иенах
+        </Button>
+      </>
+    );
+  },
+  play: async ({ canvas, userEvent }) => {
+    const amount = canvas.getByRole('textbox', { name: 'Сумма' });
+    await expect(amount).toHaveValue('350,50');
+    await userEvent.click(canvas.getByRole('button', { name: 'В иенах' }));
+    await expect(amount).toHaveValue('35050');
+  },
+};

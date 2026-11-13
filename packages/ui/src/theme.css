@@ -63,4 +63,5 @@
   --ff-control-height: 2.25rem;
   --ff-control-height-sm: 1.75rem;
   --ff-transition: 120ms ease-out;
+  --ff-opacity-disabled: 0.6;
 }
