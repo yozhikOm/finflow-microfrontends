@@ -1,0 +1,5 @@
+[
+  { "type": "transactions-changed" },
+  { "type": "categories-changed" },
+  { "type": "accounts-changed" }
+]
