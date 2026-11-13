@@ -27,19 +27,23 @@ function latestTag(name) {
   return tags.split('\n').find(Boolean);
 }
 
-/** Файлы контракта пакета: фикстуры и тема. */
-const isContractFile = (file) =>
-  /\/fixtures\/.+\.json$/.test(file) || file.endsWith('/src/theme.css');
-
 /** Содержимое файла контракта: список фикстур или имён токенов. */
 const parseContract = (file, text) =>
   file.endsWith('.css') ? themeTokens(text) : JSON.parse(text);
 
 /** Контракт пакета из каталога `dir` на коммите `rev`. */
 function contractAt(rev, dir) {
-  const files = git('ls-tree', '-r', '--name-only', rev, '--', dir)
+  const files = git(
+    'ls-tree',
+    '-r',
+    '--name-only',
+    rev,
+    '--',
+    `${dir}/fixtures`,
+    `${dir}/src/theme.css`,
+  )
     .split('\n')
-    .filter(isContractFile);
+    .filter((file) => file.endsWith('.json') || file.endsWith('.css'));
   return Object.fromEntries(
     files.map((file) => [
       file,
