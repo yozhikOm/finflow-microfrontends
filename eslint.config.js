@@ -29,7 +29,11 @@ export default defineConfig([
   },
 
   {
-    files: ['shell/src/**/*.{ts,tsx}', 'transactions/src/**/*.{ts,tsx}'],
+    files: [
+      'shell/src/**/*.{ts,tsx}',
+      'transactions/src/**/*.{ts,tsx}',
+      'packages/remote/src/**/*.{ts,tsx}',
+    ],
     extends: [reactHooks.configs.flat.recommended],
     languageOptions: {
       globals: globals.browser,
