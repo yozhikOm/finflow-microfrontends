@@ -23,6 +23,8 @@ function failure(error: unknown): ErrorLoadRemoteArgs {
 
 describe('finflow remote runtime plugin', () => {
   afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
     vi.restoreAllMocks();
   });
 
@@ -48,10 +50,22 @@ describe('finflow remote runtime plugin', () => {
     expect(log.mock.calls[0].join(' ')).toContain('unknown');
   });
 
-  it('retries loading through retry-plugin', () => {
-    const plugin = finflowRemotePlugin();
+  it('retries a failed manifest request twice on the same domain', async () => {
+    vi.useFakeTimers();
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const fetch = vi.fn(() => Promise.reject(new TypeError('Failed to fetch')));
+    vi.stubGlobal('fetch', fetch);
+    const url = 'http://localhost:3002/mf-manifest.json';
 
-    expect(plugin.fetch).toBeTypeOf('function');
-    expect(plugin.loadEntryError).toBeTypeOf('function');
+    const result = finflowRemotePlugin().fetch?.(url, {});
+    const settled = expect(result).rejects.toThrow();
+    await vi.runAllTimersAsync();
+    await settled;
+
+    expect(fetch).toHaveBeenCalledTimes(3);
+    for (const [requested] of fetch.mock.calls as unknown as [string][]) {
+      expect(requested.startsWith('http://localhost:3002/')).toBe(true);
+    }
   });
 });

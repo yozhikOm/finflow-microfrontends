@@ -6,7 +6,7 @@ import {
   screen,
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { remoteComponent } from './index.js';
+import { remoteComponent, type RemoteFailureProps } from './index.js';
 
 type Props = { name: string };
 type Module = { default: (props: Props) => React.ReactNode };
@@ -30,7 +30,7 @@ function fakeLoader() {
 
 const options = {
   loading: <p>заглушка</p>,
-  failure: ({ retry }: { retry: () => void }) => (
+  failure: ({ retry }: RemoteFailureProps) => (
     <button onClick={retry}>Повторить</button>
   ),
 };
@@ -186,5 +186,65 @@ describe('remoteComponent', () => {
     calls[1].resolve({ default: Greeting });
     await flush();
     expect(screen.getByText('Привет, Таня')).toBeTruthy();
+  });
+
+  it('loads again on retry in a place whose next attempt already failed elsewhere', async () => {
+    const { load, calls } = fakeLoader();
+    const reload = vi.fn();
+    const Remote = remoteComponent(load, { ...options, reload });
+
+    render(
+      <>
+        <Remote name="Таня" />
+        <Remote name="Оля" />
+      </>,
+    );
+    await flush();
+    calls[0].reject(new Error('RUNTIME-003'));
+    await flush();
+    const [first, second] = screen.getAllByRole('button', {
+      name: 'Повторить',
+    });
+
+    fireEvent.click(first);
+    await flush();
+    calls[1].reject(new Error('RUNTIME-003'));
+    await flush();
+
+    fireEvent.click(second);
+    await flush();
+    expect(load).toHaveBeenCalledTimes(3);
+    calls[2].resolve({ default: Greeting });
+    await flush();
+    expect(screen.getByText('Привет, Оля')).toBeTruthy();
+    expect(reload).not.toHaveBeenCalled();
+  });
+
+  it('retries without reloading again after a retry has helped', async () => {
+    const { load, calls } = fakeLoader();
+    const reload = vi.fn();
+    const Remote = remoteComponent(load, { ...options, reload });
+    const Picky = ({ name }: Props) => {
+      if (name === 'сбой') throw new Error('render');
+      return <p>Привет, {name}</p>;
+    };
+
+    const { rerender } = render(<Remote name="Таня" />);
+    await flush();
+    calls[0].reject(new Error('RUNTIME-003'));
+    await flush();
+    fireEvent.click(screen.getByRole('button', { name: 'Повторить' }));
+    await flush();
+    calls[1].resolve({ default: Picky });
+    await flush();
+    expect(screen.getByText('Привет, Таня')).toBeTruthy();
+
+    rerender(<Remote name="сбой" />);
+    await flush();
+    fireEvent.click(screen.getByRole('button', { name: 'Повторить' }));
+    await flush();
+
+    expect(reload).not.toHaveBeenCalled();
+    expect(load).toHaveBeenCalledTimes(3);
   });
 });

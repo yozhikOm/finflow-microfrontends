@@ -2,6 +2,7 @@ import {
   Component,
   Suspense,
   lazy,
+  useEffect,
   useState,
   type ComponentType,
   type JSX,
@@ -9,17 +10,22 @@ import {
   type ReactNode,
 } from 'react';
 
+export interface RemoteFailureProps {
+  /** Загрузить модуль снова, а если это уже не помогло — перезагрузить страницу. */
+  retry: () => void;
+}
+
 export interface RemoteComponentOptions {
   /** Заглушка формы модуля без текста, пока он грузится. */
   loading: ReactNode;
   /** Что показать при сбое. */
-  failure: (props: { retry: () => void }) => ReactNode;
+  failure: (props: RemoteFailureProps) => ReactNode;
   /** Перезагрузка страницы, крайняя мера «Повторить». */
   reload?: () => void;
 }
 
 class ErrorBoundary extends Component<
-  { fallback: ReactNode; children: ReactNode },
+  { fallback: () => ReactNode; children: ReactNode },
   { failed: boolean }
 > {
   state = { failed: false };
@@ -29,8 +35,14 @@ class ErrorBoundary extends Component<
   }
 
   render() {
-    return this.state.failed ? this.props.fallback : this.props.children;
+    return this.state.failed ? this.props.fallback() : this.props.children;
   }
+}
+
+/** Вызывает `onCommit`, когда модуль отрисовался и попал на страницу. */
+function Committed({ onCommit }: { onCommit: () => void }) {
+  useEffect(onCommit);
+  return null;
 }
 
 /** Загрузка дольше этого, с учётом повторов retry-plugin, — сбой (ADR-0010). */
@@ -71,11 +83,11 @@ export function remoteComponent<P extends object>(
 ): ComponentType<P> {
   const { loading, failure, reload = () => window.location.reload() } = options;
 
-  let count = 0;
+  let attemptCount = 0;
   const newAttempt = (): Attempt<P> => {
     const loadInTime = withTimeout(load);
     const attempt: Attempt<P> = {
-      id: ++count,
+      id: ++attemptCount,
       failed: false,
       Lazy: lazy(() =>
         loadInTime().catch((error: unknown) => {
@@ -89,20 +101,23 @@ export function remoteComponent<P extends object>(
 
   // Попытка общая для всех мест, где стоит компонент: модуль грузится один раз.
   // `lazy` кэширует и отклонённый промис, поэтому повтор — только новый `lazy`.
-  let shared = newAttempt();
+  let sharedAttempt = newAttempt();
 
-  /** Следующая попытка вместо `stale`. Её могло уже создать другое место. */
-  const nextAttempt = (stale: Attempt<P>) => {
-    if (shared === stale) shared = newAttempt();
-    return shared;
+  /**
+   * Попытка для места, которому не подошла `stale` (или для нового места).
+   * Упавшую загрузку место не наследует. Свежую попытку могло уже начать
+   * другое место, тогда она общая.
+   */
+  const attemptAfter = (stale?: Attempt<P>) => {
+    if (sharedAttempt === stale || sharedAttempt.failed) {
+      sharedAttempt = newAttempt();
+    }
+    return sharedAttempt;
   };
-
-  /** Попытка для нового места: упавшую загрузку оно не наследует. */
-  const currentAttempt = () => (shared.failed ? nextAttempt(shared) : shared);
 
   return function RemoteComponent(props: P) {
     const [state, setState] = useState(() => ({
-      attempt: currentAttempt(),
+      attempt: attemptAfter(),
       retried: false,
     }));
     const { attempt, retried } = state;
@@ -110,13 +125,19 @@ export function remoteComponent<P extends object>(
     // Если повтор без перезагрузки уже был и не помог, перезагружаем страницу.
     const retry = () => {
       if (retried) reload();
-      else setState({ attempt: nextAttempt(attempt), retried: true });
+      else setState({ attempt: attemptAfter(attempt), retried: true });
+    };
+
+    // Повтор помог: следующий сбой в этом месте снова начнётся с повтора.
+    const settle = () => {
+      if (retried) setState({ attempt, retried: false });
     };
 
     return (
-      <ErrorBoundary key={attempt.id} fallback={failure({ retry })}>
+      <ErrorBoundary key={attempt.id} fallback={() => failure({ retry })}>
         <Suspense fallback={loading}>
           <attempt.Lazy {...(props as P & JSX.IntrinsicAttributes)} />
+          <Committed onCommit={settle} />
         </Suspense>
       </ErrorBoundary>
     );
