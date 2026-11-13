@@ -57,13 +57,13 @@ const newTransactionQuery: QueryShape<NewTransactionParams> = {
 // База нужна только чтобы `URL` разобрал относительный адрес.
 const RELATIVE_URL_BASE = 'http://finflow.invalid';
 
-interface Location {
+interface ParsedPath {
   /** Сегменты пути без ведущего и необязательного завершающего `/`. */
   segments: string[];
   query: URLSearchParams;
 }
 
-function locate(url: string): Location {
+function locate(url: string): ParsedPath {
   const { pathname, searchParams } = new URL(url, RELATIVE_URL_BASE);
   return {
     segments: pathname.replace(/^\/|\/$/g, '').split('/'),
@@ -126,11 +126,11 @@ const account = {
     `/${prefixes.accounts}/${encodeURIComponent(id)}`,
   parse(url: string): AccountParams | null {
     const { segments } = locate(url);
-    if (segments.length !== 2 || segments[0] !== prefixes.accounts) {
-      return null;
-    }
+    // Второй сегмент — id: подходит любое его значение.
+    const [, encodedId = ''] = segments;
+    if (!isPath(segments, prefixes.accounts, encodedId)) return null;
     try {
-      const id = decodeURIComponent(segments[1]);
+      const id = decodeURIComponent(encodedId);
       return isNonEmpty(id) ? { id } : null;
     } catch {
       return null;
