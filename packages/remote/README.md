@@ -41,7 +41,7 @@ const AccountPicker = remoteComponent(
   {
     loading: <FieldSkeleton />,
     failure: ({ retry }) => (
-      <ErrorState text="Счета временно недоступны" onRetry={retry} />
+      <ErrorState compact text="Счета временно недоступны" retry={retry} />
     ),
   },
 );
