@@ -104,6 +104,17 @@ jobs:
             echo "::error file=server/schema.graphql::schema.graphql is out of date: run npm run schema and commit it"
             exit 1
           fi
+      - if: matrix.package == 'transactions'
+        name: Check that the generated GraphQL types match the server schema
+        env:
+          GENERATED: src/shared/api/graphql.generated.ts
+        run: |
+          npm run codegen
+          if [ -n "$(git status --porcelain -- "$GENERATED")" ]; then
+            git diff -- "$GENERATED"
+            echo "::error file=transactions/$GENERATED::$GENERATED is out of date: run npm run codegen and commit it"
+            exit 1
+          fi
       # У ui сборка — витрина Storybook: её деплой — отдельная задача (ADR-0013).
       - run: npm run build
       # Stories ui идут тестами в браузере (@storybook/addon-vitest, ADR-0012).
