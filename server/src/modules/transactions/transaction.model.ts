@@ -32,6 +32,10 @@ const transactionSchema = new Schema<Transaction>(
       required: true,
     },
 
+    targetAmount: {
+      type: moneySchema,
+    },
+
     accountId: {
       type: String,
       required: true,
@@ -45,8 +49,10 @@ const transactionSchema = new Schema<Transaction>(
       type: String,
     },
 
+    // Календарный день `YYYY-MM-DD` (ADR-0003): строка сортируется так же,
+    // как дата, поэтому сортировка и диапазоны работают без преобразований.
     date: {
-      type: Date,
+      type: String,
       required: true,
     },
 

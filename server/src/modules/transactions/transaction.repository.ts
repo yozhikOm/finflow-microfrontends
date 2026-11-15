@@ -4,7 +4,8 @@ import type { TransactionData } from './transaction.types.js';
 
 export const transactionRepository = {
   async findAll() {
-    return TransactionModel.find().sort({ date: -1 });
+    // Внутри одного дня сверху последняя введённая транзакция.
+    return TransactionModel.find().sort({ date: -1, createdAt: -1 });
   },
 
   async findById(id: string) {

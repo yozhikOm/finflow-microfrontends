@@ -8,34 +8,33 @@ export interface Money {
 }
 
 // Единственный источник правды для полей, которые есть и в доменной модели,
-// и во входных данных (кроме date — у неё разное представление на разных
-// границах, см. ниже).
+// и во входных данных.
 export interface TransactionFields {
   type: TransactionType;
   amount: Money;
+  // Сумма зачисления: только у перевода, в валюте счёта зачисления (ADR-0004).
+  targetAmount?: Money;
   accountId: string;
   targetAccountId?: string;
   categoryId?: string;
+  // Календарный день `YYYY-MM-DD` без времени и пояса (ADR-0003). Одинаков
+  // на входе, в MongoDB и на выходе.
+  date: string;
   description?: string;
 }
 
 // Доменная модель — то, что хранится и возвращается наружу
 export interface Transaction extends TransactionFields {
   id: string;
-  date: Date;
   createdAt: Date;
   updatedAt: Date;
 }
 
-// Данные для записи в репозиторий: без служебных id/createdAt/updatedAt,
-// но date уже приведена к Date (граница между GraphQL-слоем и доменом)
-export type TransactionData = TransactionFields & { date: Date };
+// Данные для записи в репозиторий: без служебных id/createdAt/updatedAt
+export type TransactionData = TransactionFields;
 
-// Вход мутации createTransaction: те же поля, но date — ещё строка,
-// как её присылает GraphQL-клиент
-export interface CreateTransactionInput extends TransactionFields {
-  date: string;
-}
+// Вход мутации createTransaction
+export type CreateTransactionInput = TransactionFields;
 
-// Вход мутации updateTransaction: то же самое, но partial-обновление
-export type UpdateTransactionInput = Partial<CreateTransactionInput>;
+// Вход мутации updateTransaction: partial-обновление
+export type UpdateTransactionInput = Partial<TransactionFields>;
