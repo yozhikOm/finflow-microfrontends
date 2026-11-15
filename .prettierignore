@@ -5,3 +5,5 @@ coverage
 storybook-static
 package-lock.json
 CHANGELOG.md
+# Сгенерированные файлы: их актуальность CI проверяет перегенерацией (ADR-0002).
+server/schema.graphql
