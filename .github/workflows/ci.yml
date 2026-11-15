@@ -78,6 +78,7 @@ jobs:
             packages/routes,
             packages/remote,
             packages/ui,
+            packages/events,
           ]
     defaults:
       run:
