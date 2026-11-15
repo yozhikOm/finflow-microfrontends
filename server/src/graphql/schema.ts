@@ -1,3 +1,13 @@
+import { RULE_VIOLATIONS } from '../errors/rule-violation.js';
+import {
+  CURRENCIES,
+  TRANSACTION_TYPES,
+} from '../modules/transactions/transaction.types.js';
+
+// Значения enum берутся из тех же списков, что типы и модель Mongoose:
+// так схема не расходится с кодом.
+const enumValues = (values: readonly string[]) => values.join('\n    ');
+
 export const typeDefs = `#graphql
   type Transaction {
     id: ID!
@@ -16,9 +26,7 @@ export const typeDefs = `#graphql
   }
 
   enum TransactionType {
-    INCOME
-    EXPENSE
-    TRANSFER
+    ${enumValues(TRANSACTION_TYPES)}
   }
 
   type Money {
@@ -27,9 +35,7 @@ export const typeDefs = `#graphql
   }
 
   enum Currency {
-    RUB
-    USD
-    EUR
+    ${enumValues(CURRENCIES)}
   }
 
   """
@@ -38,18 +44,7 @@ export const typeDefs = `#graphql
   Ни одно поле его не возвращает: enum входит в контракт ради codegen.
   """
   enum RuleViolation {
-    AMOUNT_NOT_POSITIVE
-    DATE_IN_FUTURE
-    CATEGORY_REQUIRED
-    CATEGORY_NOT_ALLOWED
-    TARGET_ACCOUNT_REQUIRED
-    TARGET_ACCOUNT_NOT_ALLOWED
-    SAME_ACCOUNT
-    TYPE_IMMUTABLE
-    TARGET_AMOUNT_REQUIRED
-    TARGET_AMOUNT_NOT_ALLOWED
-    TARGET_AMOUNT_MISMATCH
-    NOT_FOUND
+    ${enumValues(RULE_VIOLATIONS)}
   }
 
   type Query {

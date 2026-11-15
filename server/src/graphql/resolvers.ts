@@ -1,6 +1,6 @@
 import { transactionService } from '../modules/transactions/transaction.service.js';
 import {
-  CreateTransactionInput,
+  TransactionFields,
   UpdateTransactionInput,
 } from '../modules/transactions/transaction.types.js';
 
@@ -28,7 +28,7 @@ export const resolvers = {
   Mutation: {
     createTransaction: async (
       _: unknown,
-      { input }: { input: CreateTransactionInput },
+      { input }: { input: TransactionFields },
     ) => {
       return transactionService.create(input);
     },

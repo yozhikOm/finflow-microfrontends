@@ -4,8 +4,6 @@ import { badUserInput } from '../../errors/bad-user-input.js';
 import { ruleViolation } from '../../errors/rule-violation.js';
 import { transactionRepository } from './transaction.repository.js';
 import {
-  CreateTransactionInput,
-  TransactionData,
   TransactionFields,
   UpdateTransactionInput,
 } from './transaction.types.js';
@@ -134,7 +132,7 @@ export const transactionService = {
     return transactionRepository.findById(id);
   },
 
-  create(input: CreateTransactionInput) {
+  create(input: TransactionFields) {
     validateDate(input.date);
     validateTransaction(input);
 
@@ -158,7 +156,7 @@ export const transactionService = {
       );
     }
 
-    const updatedTransaction: TransactionData = {
+    const updatedTransaction: TransactionFields = {
       type: existingTransaction.type,
       amount: input.amount ?? existingTransaction.amount,
       targetAmount: input.targetAmount ?? existingTransaction.targetAmount,

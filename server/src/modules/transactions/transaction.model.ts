@@ -1,6 +1,10 @@
 import { Schema, model } from 'mongoose';
 
-import type { Transaction } from './transaction.types.js';
+import {
+  CURRENCIES,
+  TRANSACTION_TYPES,
+  type Transaction,
+} from './transaction.types.js';
 
 const moneySchema = new Schema(
   {
@@ -10,7 +14,7 @@ const moneySchema = new Schema(
     },
     currency: {
       type: String,
-      enum: ['RUB', 'USD', 'EUR'],
+      enum: CURRENCIES,
       required: true,
     },
   },
@@ -23,7 +27,7 @@ const transactionSchema = new Schema<Transaction>(
   {
     type: {
       type: String,
-      enum: ['INCOME', 'EXPENSE', 'TRANSFER'],
+      enum: TRANSACTION_TYPES,
       required: true,
     },
 
