@@ -1,45 +1,11 @@
 import mongoose from 'mongoose';
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
-import { startServer } from './app.js';
 import { calendarDayIn } from './calendar-day.js';
 import { userTimeZone } from './config.js';
+import { setupTestServer, type GraphQLResponse } from './test/server.js';
 
-process.env.MONGODB_URI ??= 'mongodb://localhost:27017/finflow-test';
-
-let server: Awaited<ReturnType<typeof startServer>>;
-
-beforeAll(async () => {
-  server = await startServer({ port: 0 });
-});
-
-afterAll(async () => {
-  await server?.stop();
-});
-
-beforeEach(async () => {
-  await mongoose.connection.collection('transactions').deleteMany({});
-});
-
-interface GraphQLResponse {
-  // Тест читает ответ API как есть: его форма и проверяется.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data?: Record<string, any> | null;
-  errors?: { message: string; extensions?: Record<string, unknown> }[];
-}
-
-const gql = async (
-  query: string,
-  variables: Record<string, unknown> = {},
-): Promise<GraphQLResponse> => {
-  const response = await fetch(server.url, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ query, variables }),
-  });
-
-  return response.json();
-};
+const gql = setupTestServer();
 
 const FIELDS = `
   id type accountId targetAccountId categoryId date description
