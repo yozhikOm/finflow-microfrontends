@@ -8,7 +8,9 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "schema": "tsx src/graphql/print-schema.ts",
+    "migrate:transaction-dates": "tsx src/migrations/migrate-transaction-dates.ts"
   },
   "keywords": [],
   "author": "",

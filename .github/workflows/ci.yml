@@ -92,6 +92,18 @@ jobs:
           cache-dependency-path: ${{ matrix.package }}/package-lock.json
       - run: npm ci
       - run: npm run typecheck
+      # Контракт из GraphQL-схемы (ADR-0002): файл схемы перегенерируется,
+      # и git не должен увидеть изменений. `status`, а не `diff`: так ловится
+      # и файл, которого нет в репозитории.
+      - if: matrix.package == 'server'
+        name: Check that schema.graphql matches typeDefs
+        run: |
+          npm run schema
+          if [ -n "$(git status --porcelain -- schema.graphql)" ]; then
+            git diff -- schema.graphql
+            echo "::error file=server/schema.graphql::schema.graphql is out of date: run npm run schema and commit it"
+            exit 1
+          fi
       # У ui сборка — витрина Storybook: её деплой — отдельная задача (ADR-0013).
       - run: npm run build
       # Stories ui идут тестами в браузере (@storybook/addon-vitest, ADR-0012).
