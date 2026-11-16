@@ -1,10 +1,8 @@
 .page {
-  padding: 16px 24px;
-  border-left: 4px solid #2f6fdf;
-  background: #eef3fc;
+  padding: var(--ff-space-4) var(--ff-space-5);
 }
 
 .title {
-  margin: 0 0 8px;
-  color: #2f6fdf;
+  margin: 0 0 var(--ff-space-2);
+  font-size: var(--ff-font-size-lg);
 }

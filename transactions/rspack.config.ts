@@ -4,6 +4,7 @@ import { rspack } from '@rspack/core';
 import { ReactRefreshRspackPlugin } from '@rspack/plugin-react-refresh';
 import { ModuleFederationPlugin } from '@module-federation/enhanced/rspack';
 
+import { appVersion } from './app-version.ts';
 import { mfConfig } from './module-federation.config.ts';
 
 const isDev = process.env.NODE_ENV === 'development';
@@ -13,9 +14,10 @@ const targets = ['chrome >= 87', 'edge >= 88', 'firefox >= 78', 'safari >= 14'];
 
 export default defineConfig({
   context: import.meta.dirname,
-  entry: {
-    main: './src/index.ts',
-  },
+  // Страница отдельного запуска есть только в dev-сборке (решение #19). В проде
+  // remote-приложение отдаёт манифест и чанки, точку входа даёт
+  // ModuleFederationPlugin.
+  entry: isDev ? { main: './src/standalone.ts' } : {},
   resolve: {
     extensions: ['...', '.ts', '.tsx', '.jsx'],
   },
@@ -83,9 +85,16 @@ export default defineConfig({
     ],
   },
   plugins: [
-    new rspack.HtmlRspackPlugin({
-      template: './index.html',
-    }),
+    isDev
+      ? new rspack.HtmlRspackPlugin({
+          template: './index.html',
+          // Скрипты страницы от корня: заход на `/transactions/123` иначе
+          // запросил бы `/transactions/main.js`. Чанки остаются на `auto`.
+          publicPath: '/',
+        })
+      : null,
+    // Версия из package.json: её пишет в консоль `src/version.ts` (ADR-0009).
+    new rspack.DefinePlugin(appVersion),
     new ModuleFederationPlugin(mfConfig),
     isDev ? new ReactRefreshRspackPlugin() : null,
   ].filter(Boolean),
