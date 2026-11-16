@@ -14,15 +14,22 @@ export interface GraphQLResponse {
   errors?: { message: string; extensions?: Record<string, unknown> }[];
 }
 
+/** Запрос к GraphQL API тестового server. */
+export type Gql = (
+  query: string,
+  variables?: Record<string, unknown>,
+) => Promise<GraphQLResponse>;
+
 /** Коллекция транзакций напрямую, мимо схемы Mongoose. */
 export const transactionsCollection = () =>
   mongoose.connection.collection('transactions');
 
 /**
  * Поднимает server на свободном порту на время тестового файла и чистит
- * транзакции перед каждым тестом. Возвращает функцию запроса к его GraphQL API.
+ * все коллекции перед каждым тестом. Возвращает функцию запроса к его
+ * GraphQL API.
  */
-export const setupTestServer = () => {
+export const setupTestServer = (): Gql => {
   let server: Awaited<ReturnType<typeof startServer>>;
 
   beforeAll(async () => {
@@ -33,8 +40,13 @@ export const setupTestServer = () => {
     await server?.stop();
   });
 
+  // deleteMany, а не drop: индексы (уникальность имени счёта) остаются.
   beforeEach(async () => {
-    await transactionsCollection().deleteMany({});
+    const collections = await mongoose.connection.db?.collections();
+
+    await Promise.all(
+      (collections ?? []).map((collection) => collection.deleteMany({})),
+    );
   });
 
   return async (
