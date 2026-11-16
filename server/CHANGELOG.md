@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.0.0](https://github.com/yozhikOm/finflow-microfrontends/compare/server-v1.1.0...server-v2.0.0) (2026-11-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* **server:** record target amount, calendar-day dates and rule violations ([#59](https://github.com/yozhikOm/finflow-microfrontends/issues/59))
+
+### Features
+
+* **server:** add accounts with a computed balance ([#61](https://github.com/yozhikOm/finflow-microfrontends/issues/61)) ([e8c11db](https://github.com/yozhikOm/finflow-microfrontends/commit/e8c11dbb368c3ac97f8ecc94292d45db9fd38529))
+* **server:** record target amount, calendar-day dates and rule violations ([#59](https://github.com/yozhikOm/finflow-microfrontends/issues/59)) ([fd37adf](https://github.com/yozhikOm/finflow-microfrontends/commit/fd37adfb1d689c02fe1bafebf83bd09b46689267))
+
 ## [1.1.0](https://github.com/yozhikOm/finflow-microfrontends/compare/server-v1.0.0...server-v1.1.0) (2026-11-10)
 
 
