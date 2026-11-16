@@ -1,3 +1,29 @@
+"""Счёт: место, где лежат деньги в одной валюте (GLOSSARY.md)."""
+type Account {
+  id: ID!
+  name: String!
+  type: AccountType!
+  currency: Currency!
+
+  """
+  Сумма на счёте до первой транзакции, в его валюте. Может быть отрицательной.
+  """
+  initialBalance: Money!
+  archived: Boolean!
+
+  """Начальный остаток с учётом транзакций счёта. Вычисляется при запросе."""
+  balance: Money!
+  createdAt: String!
+  updatedAt: String!
+}
+
+enum AccountType {
+  CASH
+  BANK_ACCOUNT
+  CREDIT_CARD
+  SAVINGS
+}
+
 type Transaction {
   id: ID!
   type: TransactionType!
@@ -50,12 +76,24 @@ enum RuleViolation {
   TARGET_AMOUNT_REQUIRED
   TARGET_AMOUNT_NOT_ALLOWED
   TARGET_AMOUNT_MISMATCH
+  ACCOUNT_NAME_TAKEN
   NOT_FOUND
 }
 
 type Query {
+  accounts: [Account!]!
+  account(id: ID!): Account
   transactions: [Transaction!]!
   transaction(id: ID!): Transaction
+}
+
+input CreateAccountInput {
+  name: String!
+  type: AccountType!
+  currency: Currency!
+
+  """В минимальных единицах валюты счёта. Может быть отрицательным."""
+  initialBalance: Int!
 }
 
 input CreateTransactionInput {
@@ -86,6 +124,7 @@ input MoneyInput {
 }
 
 type Mutation {
+  createAccount(input: CreateAccountInput!): Account!
   createTransaction(input: CreateTransactionInput!): Transaction!
   updateTransaction(id: ID!, input: UpdateTransactionInput!): Transaction!
   deleteTransaction(id: ID!): Boolean!

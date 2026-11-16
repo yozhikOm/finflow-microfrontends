@@ -1,14 +1,32 @@
 import { RULE_VIOLATIONS } from '../errors/rule-violation.js';
-import {
-  CURRENCIES,
-  TRANSACTION_TYPES,
-} from '../modules/transactions/transaction.types.js';
+import { CURRENCIES } from '../money.js';
+import { ACCOUNT_TYPES } from '../modules/accounts/account.types.js';
+import { TRANSACTION_TYPES } from '../modules/transactions/transaction.types.js';
 
 // Значения enum берутся из тех же списков, что типы и модель Mongoose:
 // так схема не расходится с кодом.
 const enumValues = (values: readonly string[]) => values.join('\n    ');
 
 export const typeDefs = `#graphql
+  "Счёт: место, где лежат деньги в одной валюте (GLOSSARY.md)."
+  type Account {
+    id: ID!
+    name: String!
+    type: AccountType!
+    currency: Currency!
+    "Сумма на счёте до первой транзакции, в его валюте. Может быть отрицательной."
+    initialBalance: Money!
+    archived: Boolean!
+    "Начальный остаток с учётом транзакций счёта. Вычисляется при запросе."
+    balance: Money!
+    createdAt: String!
+    updatedAt: String!
+  }
+
+  enum AccountType {
+    ${enumValues(ACCOUNT_TYPES)}
+  }
+
   type Transaction {
     id: ID!
     type: TransactionType!
@@ -48,8 +66,18 @@ export const typeDefs = `#graphql
   }
 
   type Query {
+    accounts: [Account!]!
+    account(id: ID!): Account
     transactions: [Transaction!]!,
     transaction(id: ID!): Transaction
+  }
+
+  input CreateAccountInput {
+    name: String!
+    type: AccountType!
+    currency: Currency!
+    "В минимальных единицах валюты счёта. Может быть отрицательным."
+    initialBalance: Int!
   }
 
   input CreateTransactionInput {
@@ -80,6 +108,7 @@ export const typeDefs = `#graphql
   }
 
   type Mutation {
+    createAccount(input: CreateAccountInput!): Account!
     createTransaction(
       input: CreateTransactionInput!
     ): Transaction!
