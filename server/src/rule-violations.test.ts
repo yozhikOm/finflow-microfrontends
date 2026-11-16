@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import { describe, expect, it } from 'vitest';
 
+import { accountApi, rubCard } from './test/accounts.js';
 import { setupTestServer, type GraphQLResponse } from './test/server.js';
 import {
   expense,
@@ -13,6 +14,7 @@ import {
 
 const gql = setupTestServer();
 const { create, update, created } = transactionApi(gql);
+const { createAccount, createdAccount } = accountApi(gql);
 
 // Отказ по доменному правилу (ADR-0015): одна ошибка GraphQL с
 // `extensions: { code: 'RULE_VIOLATION', rule, field? }`.
@@ -129,6 +131,28 @@ const violationCases: Record<string, ViolationCase[]> = {
       name: 'expense with a target amount',
       act: () => create(expense({ targetAmount: rub(50000) })),
       field: 'targetAmount',
+    },
+  ],
+  ACCOUNT_NAME_TAKEN: [
+    {
+      name: 'account with the name of another account',
+      act: async () => {
+        await createdAccount(rubCard({ name: 'Карта' }));
+
+        return createAccount(
+          rubCard({ name: 'Карта', type: 'CASH', currency: 'USD' }),
+        );
+      },
+      field: 'name',
+    },
+    {
+      name: 'name that differs only by surrounding spaces',
+      act: async () => {
+        await createdAccount(rubCard({ name: 'Карта' }));
+
+        return createAccount(rubCard({ name: '  Карта ' }));
+      },
+      field: 'name',
     },
   ],
   TARGET_AMOUNT_MISMATCH: [

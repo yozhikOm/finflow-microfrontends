@@ -1,3 +1,5 @@
+import { accountService } from '../modules/accounts/account.service.js';
+import type { CreateAccountInput } from '../modules/accounts/account.types.js';
 import { transactionService } from '../modules/transactions/transaction.service.js';
 import {
   TransactionFields,
@@ -17,6 +19,12 @@ const toISOInstantString = (value: Date | string): string => {
 
 export const resolvers = {
   Query: {
+    accounts: () => {
+      return accountService.getAll();
+    },
+    account: (_: unknown, { id }: { id: string }) => {
+      return accountService.getById(id);
+    },
     transactions: () => {
       return transactionService.getAll();
     },
@@ -26,6 +34,9 @@ export const resolvers = {
   },
 
   Mutation: {
+    createAccount: (_: unknown, { input }: { input: CreateAccountInput }) => {
+      return accountService.create(input);
+    },
     createTransaction: async (
       _: unknown,
       { input }: { input: TransactionFields },
@@ -47,6 +58,13 @@ export const resolvers = {
     deleteTransaction: (_: unknown, { id }: { id: string }) => {
       return transactionService.delete(id);
     },
+  },
+
+  Account: {
+    createdAt: (parent: { createdAt: Date | string }) =>
+      toISOInstantString(parent.createdAt),
+    updatedAt: (parent: { updatedAt: Date | string }) =>
+      toISOInstantString(parent.updatedAt),
   },
 
   Transaction: {

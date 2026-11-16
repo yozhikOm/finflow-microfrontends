@@ -1,10 +1,7 @@
 import { Schema, model } from 'mongoose';
 
-import {
-  CURRENCIES,
-  TRANSACTION_TYPES,
-  type Transaction,
-} from './transaction.types.js';
+import { CURRENCIES } from '../../money.js';
+import { TRANSACTION_TYPES, type Transaction } from './transaction.types.js';
 
 const moneySchema = new Schema(
   {
