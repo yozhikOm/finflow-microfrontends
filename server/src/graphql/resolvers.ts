@@ -17,6 +17,14 @@ const toISOInstantString = (value: Date | string): string => {
   return date.toISOString();
 };
 
+// Служебные моменты создания и изменения у всех типов отдаются одинаково.
+const instantFields = {
+  createdAt: (parent: { createdAt: Date | string }) =>
+    toISOInstantString(parent.createdAt),
+  updatedAt: (parent: { updatedAt: Date | string }) =>
+    toISOInstantString(parent.updatedAt),
+};
+
 export const resolvers = {
   Query: {
     accounts: () => {
@@ -60,17 +68,7 @@ export const resolvers = {
     },
   },
 
-  Account: {
-    createdAt: (parent: { createdAt: Date | string }) =>
-      toISOInstantString(parent.createdAt),
-    updatedAt: (parent: { updatedAt: Date | string }) =>
-      toISOInstantString(parent.updatedAt),
-  },
+  Account: instantFields,
 
-  Transaction: {
-    createdAt: (parent: { createdAt: Date | string }) =>
-      toISOInstantString(parent.createdAt),
-    updatedAt: (parent: { updatedAt: Date | string }) =>
-      toISOInstantString(parent.updatedAt),
-  },
+  Transaction: instantFields,
 };

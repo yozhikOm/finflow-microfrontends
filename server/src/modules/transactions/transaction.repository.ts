@@ -28,10 +28,7 @@ export const transactionRepository = {
    * валюте: доходы минус расходы, минус суммы исходящих переводов, плюс суммы
    * зачисления входящих. Счёта без транзакций в результате нет.
    */
-  async movementsByAccount(
-    accountIds: readonly string[],
-  ): Promise<Map<string, number>> {
-    const ids = [...accountIds];
+  async movementsByAccount(ids: string[]): Promise<Map<string, number>> {
     const totals = await TransactionModel.aggregate<{
       _id: string;
       total: number;
