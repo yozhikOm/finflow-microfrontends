@@ -4,6 +4,7 @@ import { rspack } from '@rspack/core';
 import { ReactRefreshRspackPlugin } from '@rspack/plugin-react-refresh';
 import { ModuleFederationPlugin } from '@module-federation/enhanced/rspack';
 
+import { appVersion } from './app-version.ts';
 import { mfConfig } from './module-federation.config.ts';
 
 const isDev = process.env.NODE_ENV === 'development';
@@ -31,8 +32,10 @@ export default defineConfig({
     path: path.resolve(import.meta.dirname, 'dist'),
     // You need to set a unique value that is not equal to other applications
     uniqueName: 'shell',
-    // Адрес чанков берётся из адреса, по которому загрузили скрипт (ADR-0009).
-    publicPath: 'auto',
+    // Хост грузит свои чанки от корня: при `auto` HTML подключал бы `main.js`
+    // относительным путём, и заход на `/transactions/123` запрашивал бы
+    // `/transactions/main.js`. У remote-приложений остаётся `auto` (ADR-0009).
+    publicPath: '/',
     clean: true,
   },
 
@@ -84,6 +87,8 @@ export default defineConfig({
     new rspack.HtmlRspackPlugin({
       template: './index.html',
     }),
+    // Версия из package.json: её пишет в консоль `src/bootstrap.tsx` (ADR-0009).
+    new rspack.DefinePlugin(appVersion),
     new ModuleFederationPlugin(mfConfig),
     isDev ? new ReactRefreshRspackPlugin() : null,
   ].filter(Boolean),

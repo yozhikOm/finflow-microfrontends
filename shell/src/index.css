@@ -1,10 +1,15 @@
-body {
-  font-family: Arial, Helvetica, sans-serif;
+/* Глобальные стили FinFlow: ими владеет только `shell` (ADR-0005). */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-.container {
-  font-size: 3rem;
-  margin: auto;
-  max-width: 800px;
-  margin-top: 20px;
+body {
+  margin: 0;
+  background: var(--ff-color-bg);
+  color: var(--ff-color-text);
+  font-family: var(--ff-font-family);
+  font-size: var(--ff-font-size-md);
+  line-height: var(--ff-line-height);
 }

@@ -118,3 +118,6 @@ dist
 # Storybook build output and logs (packages/ui)
 storybook-static
 *storybook.log
+
+# Типы remote-модулей скачиваются с производителя при сборке (ADR-0009).
+@mf-types
