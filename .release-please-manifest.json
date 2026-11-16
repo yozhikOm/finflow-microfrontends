@@ -4,5 +4,6 @@
   "transactions": "0.2.0",
   "packages/routes": "1.0.0",
   "packages/remote": "1.0.0",
-  "packages/events": "1.0.0"
+  "packages/events": "1.0.0",
+  "packages/ui": "1.0.0"
 }
