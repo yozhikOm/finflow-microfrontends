@@ -99,6 +99,21 @@ jobs:
           cache: npm
           cache-dependency-path: ${{ matrix.package }}/package-lock.json
       - run: npm ci
+      # `@mf-types` в git нет (ADR-0009): shell скачивает типы `transactions`
+      # при сборке (`typesOnBuild`). Пока здесь сборка `transactions` из этой же
+      # ветки на адресе по умолчанию. Переход на production-адрес — тикет #49.
+      - if: matrix.package == 'shell'
+        name: Serve transactions types on localhost:3001
+        working-directory: transactions
+        run: |
+          npm ci
+          npm run build
+          nohup python3 -m http.server 3001 --directory dist > /dev/null 2>&1 &
+          curl --silent --fail --retry 10 --retry-connrefused --retry-delay 1 \
+            --output /dev/null http://localhost:3001/mf-manifest.json
+      - if: matrix.package == 'shell'
+        name: Download remote types
+        run: npm run build
       - run: npm run typecheck
       # Контракт из GraphQL-схемы (ADR-0002): server выгружает schema.graphql
       # из typeDefs, transactions генерирует из неё типы. Файл перегенерируется,
