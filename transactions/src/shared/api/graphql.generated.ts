@@ -9,6 +9,36 @@ export type Scalars = {
   Float: { input: number; output: number; }
 };
 
+/** Счёт: место, где лежат деньги в одной валюте (GLOSSARY.md). */
+export type Account = {
+  __typename?: 'Account';
+  archived: Scalars['Boolean']['output'];
+  /** Начальный остаток с учётом транзакций счёта. Вычисляется при запросе. */
+  balance: Money;
+  createdAt: Scalars['String']['output'];
+  currency: Currency;
+  id: Scalars['ID']['output'];
+  /** Сумма на счёте до первой транзакции, в его валюте. Может быть отрицательной. */
+  initialBalance: Money;
+  name: Scalars['String']['output'];
+  type: AccountType;
+  updatedAt: Scalars['String']['output'];
+};
+
+export type AccountType =
+  | 'BANK_ACCOUNT'
+  | 'CASH'
+  | 'CREDIT_CARD'
+  | 'SAVINGS';
+
+export type CreateAccountInput = {
+  currency: Currency;
+  /** В минимальных единицах валюты счёта. Может быть отрицательным. */
+  initialBalance: Scalars['Int']['input'];
+  name: Scalars['String']['input'];
+  type: AccountType;
+};
+
 export type CreateTransactionInput = {
   accountId: Scalars['ID']['input'];
   amount: MoneyInput;
@@ -38,9 +68,15 @@ export type MoneyInput = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  createAccount: Account;
   createTransaction: Transaction;
   deleteTransaction: Scalars['Boolean']['output'];
   updateTransaction: Transaction;
+};
+
+
+export type MutationCreateAccountArgs = {
+  input: CreateAccountInput;
 };
 
 
@@ -61,8 +97,15 @@ export type MutationUpdateTransactionArgs = {
 
 export type Query = {
   __typename?: 'Query';
+  account?: Maybe<Account>;
+  accounts: Array<Account>;
   transaction?: Maybe<Transaction>;
   transactions: Array<Transaction>;
+};
+
+
+export type QueryAccountArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -76,6 +119,7 @@ export type QueryTransactionArgs = {
  * Ни одно поле его не возвращает: enum входит в контракт ради codegen.
  */
 export type RuleViolation =
+  | 'ACCOUNT_NAME_TAKEN'
   | 'AMOUNT_NOT_POSITIVE'
   | 'CATEGORY_NOT_ALLOWED'
   | 'CATEGORY_REQUIRED'
