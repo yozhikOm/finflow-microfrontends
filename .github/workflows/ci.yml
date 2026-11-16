@@ -80,6 +80,14 @@ jobs:
             packages/ui,
             packages/events,
           ]
+        # Сгенерированный файл пакета и npm-скрипт, который его пишет.
+        include:
+          - package: server
+            generate: schema
+            generated: schema.graphql
+          - package: transactions
+            generate: codegen
+            generated: src/shared/api/graphql.generated.ts
     defaults:
       run:
         working-directory: ${{ matrix.package }}
@@ -92,16 +100,21 @@ jobs:
           cache-dependency-path: ${{ matrix.package }}/package-lock.json
       - run: npm ci
       - run: npm run typecheck
-      # Контракт из GraphQL-схемы (ADR-0002): файл схемы перегенерируется,
+      # Контракт из GraphQL-схемы (ADR-0002): server выгружает schema.graphql
+      # из typeDefs, transactions генерирует из неё типы. Файл перегенерируется,
       # и git не должен увидеть изменений. `status`, а не `diff`: так ловится
       # и файл, которого нет в репозитории.
-      - if: matrix.package == 'server'
-        name: Check that schema.graphql matches typeDefs
+      - if: matrix.generated
+        name: Check that ${{ matrix.generated }} is up to date
+        env:
+          GENERATE: ${{ matrix.generate }}
+          GENERATED: ${{ matrix.generated }}
+          PACKAGE: ${{ matrix.package }}
         run: |
-          npm run schema
-          if [ -n "$(git status --porcelain -- schema.graphql)" ]; then
-            git diff -- schema.graphql
-            echo "::error file=server/schema.graphql::schema.graphql is out of date: run npm run schema and commit it"
+          npm run "$GENERATE"
+          if [ -n "$(git status --porcelain -- "$GENERATED")" ]; then
+            git diff -- "$GENERATED"
+            echo "::error file=$PACKAGE/$GENERATED::$GENERATED is out of date: run npm run $GENERATE and commit it"
             exit 1
           fi
       # У ui сборка — витрина Storybook: её деплой — отдельная задача (ADR-0013).
