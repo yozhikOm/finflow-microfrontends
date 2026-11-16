@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/yozhikOm/finflow-microfrontends/compare/transactions-v0.1.0...transactions-v0.2.0) (2026-11-16)
+
+
+### Features
+
+* **server:** add accounts with a computed balance ([#61](https://github.com/yozhikOm/finflow-microfrontends/issues/61)) ([e8c11db](https://github.com/yozhikOm/finflow-microfrontends/commit/e8c11dbb368c3ac97f8ecc94292d45db9fd38529))
+
 ## [0.1.0](https://github.com/yozhikOm/finflow-microfrontends/compare/transactions-v0.0.1...transactions-v0.1.0) (2026-11-10)
 
 
