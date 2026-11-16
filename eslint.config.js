@@ -10,7 +10,13 @@ import tseslint from 'typescript-eslint';
 // опираются. Поэтому парсинг идёт через корневой TypeScript 5, а проверку
 // типов каждый пакет делает сам (`npm run typecheck`).
 export default defineConfig([
-  globalIgnores(['**/dist', '**/node_modules', '**/@mf-types', '**/coverage']),
+  globalIgnores([
+    '**/dist',
+    '**/node_modules',
+    '**/@mf-types',
+    '**/coverage',
+    '**/storybook-static',
+  ]),
 
   js.configs.recommended,
   tseslint.configs.recommended,
@@ -21,6 +27,7 @@ export default defineConfig([
       '*/rspack.config.ts',
       '*/module-federation.config.ts',
       '*.config.js',
+      'scripts/**/*.js',
     ],
     languageOptions: {
       globals: globals.node,
@@ -28,7 +35,13 @@ export default defineConfig([
   },
 
   {
-    files: ['shell/src/**/*.{ts,tsx}', 'transactions/src/**/*.{ts,tsx}'],
+    files: [
+      'shell/src/**/*.{ts,tsx}',
+      'transactions/src/**/*.{ts,tsx}',
+      'packages/remote/src/**/*.{ts,tsx}',
+      'packages/ui/src/**/*.{ts,tsx}',
+      'packages/ui/.storybook/**/*.ts',
+    ],
     extends: [reactHooks.configs.flat.recommended],
     languageOptions: {
       globals: globals.browser,

@@ -6,9 +6,12 @@
     "build:dev": "cross-env NODE_ENV=development rspack build",
     "build:start": "cd dist && rspack serve",
     "start": "cross-env NODE_ENV=development rspack serve",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "codegen": "graphql-codegen"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^8.0.0",
+    "@graphql-codegen/typescript": "^7.0.1",
     "@rspack/cli": "^2.3.1",
     "@rspack/core": "^2.3.1",
     "@rspack/dev-server": "^2.2.2",
@@ -16,6 +19,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "cross-env": "^10.1.0",
+    "graphql": "^17.1.0",
     "react-refresh": "^0.19.0",
     "typescript": "^5.7.3"
   },

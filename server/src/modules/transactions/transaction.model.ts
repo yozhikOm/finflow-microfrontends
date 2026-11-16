@@ -1,6 +1,7 @@
 import { Schema, model } from 'mongoose';
 
-import type { Transaction } from './transaction.types.js';
+import { CURRENCIES } from '../../money.js';
+import { TRANSACTION_TYPES, type Transaction } from './transaction.types.js';
 
 const moneySchema = new Schema(
   {
@@ -10,7 +11,7 @@ const moneySchema = new Schema(
     },
     currency: {
       type: String,
-      enum: ['RUB', 'USD', 'EUR'],
+      enum: CURRENCIES,
       required: true,
     },
   },
@@ -23,13 +24,17 @@ const transactionSchema = new Schema<Transaction>(
   {
     type: {
       type: String,
-      enum: ['INCOME', 'EXPENSE', 'TRANSFER'],
+      enum: TRANSACTION_TYPES,
       required: true,
     },
 
     amount: {
       type: moneySchema,
       required: true,
+    },
+
+    targetAmount: {
+      type: moneySchema,
     },
 
     accountId: {
@@ -45,8 +50,10 @@ const transactionSchema = new Schema<Transaction>(
       type: String,
     },
 
+    // Календарный день `YYYY-MM-DD` (ADR-0003): строка сортируется так же,
+    // как дата, поэтому сортировка и диапазоны работают без преобразований.
     date: {
-      type: Date,
+      type: String,
       required: true,
     },
 

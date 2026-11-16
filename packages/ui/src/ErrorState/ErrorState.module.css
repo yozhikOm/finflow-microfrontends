@@ -1,0 +1,26 @@
+.errorState {
+  display: flex;
+  color: var(--ff-color-text);
+}
+
+.block {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--ff-space-3);
+  padding: var(--ff-space-5);
+  border: var(--ff-border-width) solid var(--ff-color-border);
+  border-radius: var(--ff-radius-md);
+  background: var(--ff-color-surface);
+  font-size: var(--ff-font-size-md);
+}
+
+.compact {
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ff-space-2);
+  font-size: var(--ff-font-size-sm);
+}
+
+.compact .text {
+  color: var(--ff-color-danger);
+}

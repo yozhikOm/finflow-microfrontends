@@ -1,0 +1,30 @@
+.select {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--ff-control-height);
+  padding: 0 var(--ff-space-2);
+  border: var(--ff-border-width) solid var(--ff-color-border-strong);
+  border-radius: var(--ff-radius-sm);
+  background: var(--ff-color-surface);
+  color: var(--ff-color-text);
+  font-family: inherit;
+  font-size: var(--ff-font-size-md);
+  line-height: var(--ff-line-height);
+  cursor: pointer;
+}
+
+.select:focus-visible {
+  outline: none;
+  border-color: var(--ff-color-accent);
+  box-shadow: var(--ff-focus-ring);
+}
+
+.select[aria-invalid='true'] {
+  border-color: var(--ff-color-danger);
+}
+
+.select:disabled {
+  background: var(--ff-color-surface-muted);
+  color: var(--ff-color-text-muted);
+  cursor: not-allowed;
+}

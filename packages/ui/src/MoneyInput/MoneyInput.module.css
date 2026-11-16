@@ -1,0 +1,62 @@
+.moneyInput {
+  display: flex;
+  align-items: stretch;
+  min-height: var(--ff-control-height);
+  border: var(--ff-border-width) solid var(--ff-color-border-strong);
+  border-radius: var(--ff-radius-sm);
+  background: var(--ff-color-surface);
+}
+
+.moneyInput:focus-within {
+  border-color: var(--ff-color-accent);
+  box-shadow: var(--ff-focus-ring);
+}
+
+.moneyInput:has(.amount[aria-invalid='true']) {
+  border-color: var(--ff-color-danger);
+}
+
+.amount,
+.currency {
+  border: none;
+  background: transparent;
+  color: var(--ff-color-text);
+  font-family: inherit;
+  font-size: var(--ff-font-size-md);
+  line-height: var(--ff-line-height);
+}
+
+.amount {
+  flex: 1;
+  min-width: 0;
+  padding: 0 var(--ff-space-3);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.amount:focus,
+.currency:focus {
+  outline: none;
+}
+
+.currency,
+.currencyCode {
+  padding: 0 var(--ff-space-2);
+  border-left: var(--ff-border-width) solid var(--ff-color-border);
+}
+
+.currency {
+  cursor: pointer;
+}
+
+.currencyCode {
+  display: flex;
+  align-items: center;
+  color: var(--ff-color-text-muted);
+}
+
+.amount:disabled,
+.currency:disabled {
+  color: var(--ff-color-text-muted);
+  cursor: not-allowed;
+}
