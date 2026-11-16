@@ -1,14 +1,18 @@
-import ReactDOM from 'react-dom/client';
+import { Route, Routes } from 'react-router';
 
-import './index.css';
+import { NotFoundPage } from './pages/not-found/NotFoundPage';
+import { TransactionsPage } from './pages/transactions/TransactionsPage';
+import './version';
 
-const App = () => (
-  <div className="container">
-    <div>Name: transactions</div>
-    <div>Framework: react-19</div>
-  </div>
-);
-
-const root = ReactDOM.createRoot(document.getElementById('app') as HTMLElement);
-
-root.render(<App />);
+/**
+ * Раздел транзакций: `shell` монтирует его на префикс `transactions/*`
+ * (ADR-0008). Пути внутри префикса — относительные, ими распоряжается раздел.
+ */
+export default function App() {
+  return (
+    <Routes>
+      <Route index element={<TransactionsPage />} />
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
+  );
+}
